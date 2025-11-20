@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Volume2,
     VolumeX,
@@ -16,7 +16,8 @@ import {
     Sun,
     Printer,
     SkipBack,
-    SkipForward
+    SkipForward,
+    Settings
 } from 'lucide-react';
 
 const Controls = ({
@@ -39,108 +40,146 @@ const Controls = ({
     onJumpToCover,
     onJumpToEnd
 }) => {
+    const [showSettings, setShowSettings] = useState(false);
     const progress = Math.round(((currentPage) / totalPages) * 100);
+    const progressWidth = (currentPage / totalPages) * 100;
 
     return (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl glass-panel px-3 py-2 z-50 transition-all duration-300 hover:bg-white/15">
-            <div className="flex items-center justify-between gap-4">
+        <div className="fixed bottom-0 left-0 right-0 z-50 group">
+            {/* Progress Bar */}
+            <div className="relative h-1 bg-gray-800/60 cursor-pointer hover:h-1.5 transition-all">
+                <div
+                    className="absolute top-0 left-0 h-full bg-red-600 transition-all"
+                    style={{ width: `${progressWidth}%` }}
+                >
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+            </div>
 
-                {/* Left Group: Audio & Progress - Takes 1/3 space */}
-                <div className="flex items-center gap-2 flex-1 justify-start">
-                    <button
-                        onClick={onToggleMute}
-                        className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white"
-                        title={isMuted ? "Unmute" : "Mute"}
-                    >
-                        {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-                    </button>
+            {/* Controls Panel - YouTube Style */}
+            <div className="bg-gradient-to-t from-black/90 via-black/75 to-transparent px-4 py-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="flex items-center justify-between gap-4 max-w-screen-2xl mx-auto">
 
-                    <div className="hidden lg:flex flex-col">
-                        <span className="text-[9px] text-slate-400 font-medium uppercase tracking-wider">Progress</span>
-                        <span className="text-[11px] text-white font-bold">{progress}%</span>
+                    {/* Left Controls */}
+                    <div className="flex items-center gap-2">
+                        {/* Navigation */}
+                        <button
+                            onClick={onPrevPage}
+                            className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
+                            title="Previous Page (Arrow Left)"
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+
+                        <button
+                            onClick={onNextPage}
+                            className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
+                            title="Next Page (Arrow Right)"
+                        >
+                            <ChevronRight size={20} />
+                        </button>
+
+                        {/* Volume */}
+                        <button
+                            onClick={onToggleMute}
+                            className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
+                            title={isMuted ? "Unmute" : "Mute"}
+                        >
+                            {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                        </button>
+
+                        {/* Page Counter */}
+                        <div className="text-white text-sm font-medium ml-1">
+                            <span className="tabular-nums">{currentPage + 1}</span>
+                            <span className="text-gray-400 mx-1">/</span>
+                            <span className="text-gray-400 tabular-nums">{totalPages}</span>
+                        </div>
+                    </div>
+
+                    {/* Center - Title/Info */}
+                    <div className="hidden md:flex items-center justify-center flex-1">
+                        <span className="text-white text-sm font-medium">Pagambit - Interactive Comic Book</span>
+                    </div>
+
+                    {/* Right Controls */}
+                    <div className="flex items-center gap-1 relative">
+                        {/* Quick Jump */}
+                        <button
+                            onClick={onJumpToCover}
+                            className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
+                            title="Jump to Cover"
+                        >
+                            <SkipBack size={20} />
+                        </button>
+
+                        <button
+                            onClick={onJumpToEnd}
+                            className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
+                            title="Jump to End"
+                        >
+                            <SkipForward size={20} />
+                        </button>
+
+                        {/* Settings Menu */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowSettings(!showSettings)}
+                                className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
+                                title="Settings"
+                            >
+                                <Settings size={20} />
+                            </button>
+
+                            {/* Settings Dropdown */}
+                            {showSettings && (
+                                <div className="absolute bottom-full right-0 mb-2 w-56 bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 py-2 text-sm">
+                                    <SettingsItem icon={Search} label="Search" onClick={() => { onSearch(); setShowSettings(false); }} />
+                                    <SettingsItem icon={List} label="Table of Contents" onClick={() => { onTableOfContents(); setShowSettings(false); }} />
+                                    <div className="border-t border-gray-700 my-1"></div>
+                                    <SettingsItem icon={Bookmark} label="Bookmark Page" onClick={() => { onBookmark(); setShowSettings(false); }} />
+                                    <SettingsItem icon={Printer} label="Print Current Page" onClick={() => { onPrint(); setShowSettings(false); }} />
+                                    <SettingsItem icon={Download} label="Download Book" onClick={() => { onDownload(); setShowSettings(false); }} />
+                                    <SettingsItem icon={Share2} label="Share Link" onClick={() => { onShare(); setShowSettings(false); }} />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Night Mode */}
+                        <button
+                            onClick={onToggleNightMode}
+                            className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
+                            title={isNightMode ? "Day Mode" : "Night Mode"}
+                        >
+                            {isNightMode ? <Sun size={20} /> : <Moon size={20} />}
+                        </button>
+
+                        {/* Fullscreen */}
+                        <button
+                            onClick={onToggleFullscreen}
+                            className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
+                            title={isFullscreen ? "Exit Fullscreen (f)" : "Fullscreen (f)"}
+                        >
+                            {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+                        </button>
                     </div>
                 </div>
 
-                {/* Center Group: Navigation - Takes 1/3 space */}
-                <div className="flex items-center gap-2 md:gap-4 flex-1 justify-center">
-                    <button
-                        onClick={onPrevPage}
-                        className="group flex items-center gap-1 p-1.5 hover:bg-white/5 rounded-lg transition-all"
-                        title="Previous Page"
-                    >
-                        <ChevronLeft size={18} className="text-slate-300 group-hover:text-white group-hover:-translate-x-1 transition-transform" />
-                    </button>
-
-                    <div className="flex flex-col items-center min-w-[50px]">
-                        <span className="text-lg font-bold text-white tabular-nums">
-                            {String(currentPage + 1).padStart(2, '0')}
-                        </span>
-                        <span className="text-[8px] text-slate-400 uppercase tracking-widest">Page</span>
-                    </div>
-
-                    <button
-                        onClick={onNextPage}
-                        className="group flex items-center gap-1 p-1.5 hover:bg-white/5 rounded-lg transition-all"
-                        title="Next Page"
-                    >
-                        <ChevronRight size={18} className="text-slate-300 group-hover:text-white group-hover:translate-x-1 transition-transform" />
-                    </button>
-                </div>
-
-                {/* Right Group: Student Tools & Actions - Takes 1/3 space */}
-                <div className="flex items-center gap-1.5 flex-1 justify-end">
-                    {/* Quick Navigation */}
-                    <div className="hidden md:flex items-center gap-0.5 mr-1.5 border-r border-white/10 pr-2">
-                        <ActionButton icon={SkipBack} onClick={onJumpToCover} label="Jump to Cover" variant="accent" />
-                        <ActionButton icon={SkipForward} onClick={onJumpToEnd} label="Jump to End" variant="accent" />
-                    </div>
-
-                    {/* Study Tools */}
-                    <div className="hidden md:flex items-center gap-0.5 mr-1.5 border-r border-white/10 pr-2">
-                        <ActionButton icon={Search} onClick={onSearch} label="Search" />
-                        <ActionButton icon={List} onClick={onTableOfContents} label="Contents" />
-                    </div>
-
-                    {/* Utility Tools */}
-                    <div className="hidden md:flex items-center gap-0.5 mr-1.5 border-r border-white/10 pr-2">
-                        <ActionButton icon={Bookmark} onClick={onBookmark} label="Bookmark" />
-                        <ActionButton icon={Printer} onClick={onPrint} label="Print" />
-                        <ActionButton icon={Download} onClick={onDownload} label="Download" />
-                        <ActionButton icon={Share2} onClick={onShare} label="Share" />
-                    </div>
-
-                    {/* Display Controls */}
-                    <button
-                        onClick={onToggleNightMode}
-                        className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white"
-                        title={isNightMode ? "Day Mode" : "Night Mode"}
-                    >
-                        {isNightMode ? <Sun size={16} /> : <Moon size={16} />}
-                    </button>
-
-                    <button
-                        onClick={onToggleFullscreen}
-                        className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white"
-                        title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-                    >
-                        {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
-                    </button>
+                {/* Progress Text */}
+                <div className="absolute top-2 left-4 text-xs text-white/80 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                    {progress}% Complete
                 </div>
             </div>
         </div>
     );
 };
 
-const ActionButton = ({ icon: Icon, onClick, label, variant = 'default' }) => (
+const SettingsItem = ({ icon: Icon, label, onClick }) => (
     <button
         onClick={onClick}
-        className={`p-1.5 rounded-lg transition-all ${variant === 'accent'
-            ? 'text-purple-400 hover:text-purple-300 hover:bg-purple-500/10'
-            : 'text-slate-400 hover:text-white hover:bg-white/10'
-            }`}
-        title={label}
+        className="w-full px-4 py-2 text-white hover:bg-white/10 transition-colors flex items-center gap-3 text-left"
     >
-        <Icon size={14} />
+        <Icon size={18} />
+        <span>{label}</span>
     </button>
 );
 
