@@ -183,6 +183,7 @@ function Book() {
           maxShadowOpacity={0.5}
           showCover={true}
           mobileScrollSupport={true}
+          usePortrait={false}
           className="shadow-2xl"
           ref={bookRef}
           onFlip={handleFlip}
@@ -225,6 +226,22 @@ function Book() {
               </div>
             </div>
           ))}
+
+          {/* Back Cover */}
+          <div className="page cover bg-gradient-to-br from-purple-900 to-indigo-900 text-white flex flex-col items-center justify-center p-8 border-l-4 border-purple-950">
+            <div className="text-center space-y-6">
+              <div className="w-24 h-24 mx-auto bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/20 shadow-inner">
+                <span className="text-3xl">🏁</span>
+              </div>
+              <div>
+                <h1 className="text-3xl font-black tracking-tighter mb-2 font-serif">THE END</h1>
+                <p className="text-purple-200 text-xs tracking-[0.2em] uppercase">Thanks for reading</p>
+              </div>
+              <div className="pt-8">
+                <p className="text-[10px] text-purple-300/60">© 2024 Mel Creatives</p>
+              </div>
+            </div>
+          </div>
         </HTMLFlipBook>
       </div>
 
