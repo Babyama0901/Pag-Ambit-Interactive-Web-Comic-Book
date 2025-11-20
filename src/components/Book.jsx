@@ -8,60 +8,57 @@ const ImageWithOverlay = ({ src, alt, pageNum }) => {
 
   return (
     <div
-      className="relative w-full h-full group"
+      className="relative w-full h-full group cursor-pointer overflow-hidden"
       onMouseEnter={() => setShowOverlay(true)}
       onMouseLeave={() => setShowOverlay(false)}
     >
       <img
         src={src}
         alt={alt}
-        className="w-full h-full object-cover"
+        className={`w-full h-full object-cover transition-transform duration-700 ease-in-out ${showOverlay ? 'scale-110' : 'scale-100'}`}
         onError={(e) => { e.target.src = 'https://placehold.co/450x636/e9d5ff/6b21a8?text=Page+' + pageNum }}
       />
 
-      {/* Overlay with Pop-up Animation */}
+      {/* Comic Speech Bubble Overlay */}
       <div
-        className={`absolute inset-0 bg-gradient-to-br from-purple-600/95 via-violet-600/95 to-indigo-600/95 
-                    flex items-center justify-center backdrop-blur-sm
-                    transition-all duration-300 ease-out
+        className={`absolute top-10 left-1/2 -translate-x-1/2 w-64 z-20 pointer-events-none
+                    transition-all duration-500 cubic-bezier(0.68, -0.55, 0.265, 1.55)
                     ${showOverlay
-            ? 'opacity-100 scale-100'
-            : 'opacity-0 scale-95 pointer-events-none'
+            ? 'opacity-100 scale-100 translate-y-0'
+            : 'opacity-0 scale-0 translate-y-10'
           }`}
         style={{
-          transformOrigin: 'center center'
+          transitionTimingFunction: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+          transformOrigin: 'bottom center'
         }}
       >
-        <div className={`text-center space-y-4 px-6 transition-all duration-300 delay-75
-                         ${showOverlay ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-          {/* Icon with Pop Animation */}
-          <div className={`w-20 h-20 mx-auto bg-white/20 rounded-full flex items-center justify-center
-                          backdrop-blur-sm border-2 border-white/30 shadow-2xl
-                          transition-all duration-300 delay-100
-                          ${showOverlay ? 'scale-100 rotate-0' : 'scale-0 rotate-45'}`}>
-            <span className="text-4xl">🖼️</span>
+        <div className="relative bg-white border-4 border-black rounded-[2rem] p-6 shadow-[8px_8px_0px_rgba(0,0,0,0.2)]">
+          {/* Tail of the bubble */}
+          <div className="absolute -bottom-6 left-8 w-0 h-0 
+                           border-l-[20px] border-l-transparent
+                           border-r-[0px] border-r-transparent
+                           border-t-[30px] border-t-black
+                           transform rotate-12">
+          </div>
+          <div className="absolute -bottom-[18px] left-[36px] w-0 h-0 
+                           border-l-[14px] border-l-transparent
+                           border-r-[0px] border-r-transparent
+                           border-t-[24px] border-t-white
+                           transform rotate-12">
           </div>
 
-          {/* Text Content */}
-          <div className={`transition-all duration-300 delay-150
-                          ${showOverlay ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-            <h3 className="text-white font-bold text-xl mb-2">Page {pageNum}</h3>
-            <p className="text-white/90 text-sm">Interactive Comic Panel</p>
+          <div className="text-center relative z-10">
+            <h3 className="font-black text-2xl mb-2 text-black uppercase tracking-widest transform -rotate-2">
+              Page {pageNum}
+            </h3>
+            <p className="font-bold text-black text-sm leading-tight transform rotate-1">
+              "Wait until you see what happens in this panel!"
+            </p>
           </div>
 
-          {/* Action Buttons */}
-          <div className={`flex gap-3 justify-center transition-all duration-300 delay-200
-                          ${showOverlay ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-            <button className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm
-                             backdrop-blur-sm border border-white/30 transition-all duration-200
-                             hover:scale-105 active:scale-95">
-              View Details
-            </button>
-            <button className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm
-                             backdrop-blur-sm border border-white/30 transition-all duration-200
-                             hover:scale-105 active:scale-95">
-              Zoom
-            </button>
+          {/* Decorative lines for 'action' effect */}
+          <div className="absolute -top-4 -right-4 text-4xl text-black font-black rotate-12 animate-pulse">
+            !
           </div>
         </div>
       </div>
