@@ -83,18 +83,38 @@ function Book() {
 
   // Pages configuration
   const pages = [
-    { src: "scene 1.1.png", type: "image" }, // Page 1
-    { type: "toc" }, // Page 2
-    { src: "SCENE 1/scene 1.1.png", type: "image", hasSpeechBubble: true, speechText: "Welcome to Scene 1!" }, // Page 3
-    { src: "SCENE 1/scene 1.2.png", type: "image", hasSpeechBubble: true, speechText: "Something is happening..." }, // Page 4
-    { src: "SCENE 1/scene 1.3.png", type: "image", hasSpeechBubble: true, speechText: "Watch out!" }, // Page 5
-    { src: "https://placehold.co/450x636/e9d5ff/6b21a8?text=Page+6", type: "image", hasSpeechBubble: true, speechText: "To be continued..." }, // Page 6
-    { src: "SCENE 13 - PANEL 1.png", type: "image" },
-    { src: "SCENE 13 - PANEL 2.mp4", type: "video" },
-    { src: "SCENE 14 - PANEL 1-.mp4", type: "video" },
-    { src: "SCENE 14 - PANEL 2 (Animated).mp4", type: "video" },
-    { src: "SCENE 15 - PANEL 1.mp4", type: "video" },
-    { src: "SCENE 15 - PANEL 2.mp4", type: "video" },
+    { type: "toc" },
+    // Scene 1
+    { src: "Scene1/scene 1.1.png", type: "image", hasSpeechBubble: true, speechText: "Welcome to Scene 1!" },
+    { src: "Scene1/scene 1.2.png", type: "image", hasSpeechBubble: true, speechText: "Something is happening..." },
+    { src: "Scene1/scene 1.3.png", type: "image", hasSpeechBubble: true, speechText: "Watch out!" },
+
+    // Scene 5
+    { src: "Scene 5/5.1.png", type: "image" },
+    { src: "Scene 5/5.2.png", type: "image" },
+    { src: "Scene 5/5.3.png", type: "image" },
+    { src: "Scene 5/5.4.png", type: "image" },
+    { src: "Scene 5/5.5.png", type: "image" },
+    { src: "Scene 5/5.6.png", type: "image" },
+
+    // Scene 6
+    { src: "Scene 6/6.1.png", type: "image" },
+    { src: "Scene 6/6.2.png", type: "image" },
+    { src: "Scene 6/6.3.png", type: "image" },
+    { src: "Scene 6/6.4.png", type: "image" },
+    { src: "Scene 6/6.5.png", type: "image" },
+    { src: "Scene 6/6.6.png", type: "image" },
+
+    // Scene 7
+    { src: "Scene 7/7.1.png", type: "image" },
+    { src: "Scene 7/7.2.png", type: "image" },
+    { src: "Scene 7/7.3.png", type: "image" },
+    { src: "Scene 7/7.4.png", type: "image" },
+
+    // Scene 8
+    { src: "Scene 8/8.1.png", type: "image" },
+    { src: "Scene 8/8.2.png", type: "image" },
+    { src: "Scene 8/8.3.png", type: "image" },
   ];
 
   const totalPages = pages.length + 2; // Cover + Back Cover + Pages
@@ -374,10 +394,11 @@ function Book() {
                   </div>
                   <div className="space-y-4 flex-1">
                     {[
-                      { title: "Chapter 1: The Beginning", page: 2 },
-                      { title: "Chapter 2: The Conflict", page: 3 },
-                      { title: "Chapter 3: Resolution", page: 4 },
-                      { title: "Epilogue", page: 5 }
+                      { title: "Scene 1", page: 1 },
+                      { title: "Scene 5", page: 4 },
+                      { title: "Scene 6", page: 10 },
+                      { title: "Scene 7", page: 16 },
+                      { title: "Scene 8", page: 20 }
                     ].map((item, i) => (
                       <div key={i}
                         className="flex items-center justify-between p-4 hover:bg-purple-50 rounded-lg cursor-pointer group transition-colors border-b border-gray-100"
@@ -480,10 +501,11 @@ function Book() {
         <div className="space-y-2">
           {[
             { title: "Cover", page: 0 },
-            { title: "Chapter 1: The Beginning", page: 1 },
-            { title: "Chapter 2: The Conflict", page: 10 },
-            { title: "Chapter 3: Resolution", page: 20 },
-            { title: "Epilogue", page: 38 }
+            { title: "Scene 1", page: 1 },
+            { title: "Scene 5", page: 4 },
+            { title: "Scene 6", page: 10 },
+            { title: "Scene 7", page: 16 },
+            { title: "Scene 8", page: 20 }
           ].map((item, index) => (
             <button
               key={index}
