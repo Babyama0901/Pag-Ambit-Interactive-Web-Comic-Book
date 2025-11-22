@@ -336,22 +336,12 @@ function Book() {
           {/* Page 1 */}
           <div className="page bg-white p-0 overflow-hidden">
             <ImageWithOverlay
-              src="/SCENE 13 - PANEL 1.png"
+              src={`${import.meta.env.BASE_URL}SCENE 13 - PANEL 1.png`}
               alt="Page 1"
               pageNum={1}
             />
           </div>
 
-          {/* Generated Pages */}
-          {Array.from({ length: 38 }, (_, i) => i + 2).map((pageNum) => (
-            <div key={pageNum} className="page bg-white p-0 overflow-hidden border-l border-slate-100">
-              <ImageWithOverlay
-                src={`https://placehold.co/450x636/f8f9fa/6b21a8?text=Page+${pageNum}`}
-                alt={`Page ${pageNum}`}
-                pageNum={pageNum}
-              />
-            </div>
-          ))}
 
           {/* Back Cover */}
           <div className="page cover bg-gradient-to-br from-indigo-900 via-purple-800 to-violet-900 text-white flex flex-col items-center justify-center p-8 border-l-4 border-purple-950 relative overflow-hidden"
@@ -584,7 +574,7 @@ function Book() {
       </Modal>
 
       {/* Hidden Audio Element */}
-      <audio ref={audioRef} src="/Page Turn Sound Effect.mp3" preload="auto" />
+      <audio ref={audioRef} src={`${import.meta.env.BASE_URL}Page Turn Sound Effect.mp3`} preload="auto" />
     </div>
   );
 }
