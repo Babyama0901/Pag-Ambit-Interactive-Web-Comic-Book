@@ -3,60 +3,74 @@ import HTMLFlipBook from 'react-pageflip';
 import Controls from './Controls';
 import Modal from './Modal';
 
-// ImageWithOverlay Component
-const ImageWithOverlay = ({ src, alt, pageNum }) => {
+// MediaPage Component (handles both Images and Videos)
+const MediaPage = ({ src, alt, pageNum }) => {
   const [showOverlay, setShowOverlay] = useState(false);
+  const isVideo = src.toLowerCase().endsWith('.mp4');
 
   return (
     <div
-      className="relative w-full h-full group overflow-hidden"
+      className="relative w-full h-full group overflow-hidden bg-white"
       onMouseEnter={() => setShowOverlay(true)}
       onMouseLeave={() => setShowOverlay(false)}
     >
-      <img
-        src={src}
-        alt={alt}
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        onError={(e) => { e.target.src = 'https://placehold.co/450x636/e9d5ff/6b21a8?text=Page+' + pageNum }}
-      />
+      {isVideo ? (
+        <video
+          src={src}
+          className="w-full h-full object-cover"
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={(e) => { e.target.src = 'https://placehold.co/450x636/e9d5ff/6b21a8?text=Page+' + pageNum }}
+        />
+      )}
 
-      {/* Speech Bubble Overlay */}
-      <div
-        className={`absolute inset-0 flex items-center justify-center pointer-events-none`}
-      >
-        <div className={`relative bg-white border-4 border-black rounded-[50%] p-8 w-64 h-48 flex flex-col items-center justify-center shadow-[8px_8px_0px_rgba(0,0,0,0.2)]
-                        transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] origin-bottom-left
-                        ${showOverlay ? 'opacity-100 scale-100 translate-y-0 rotate-0' : 'opacity-0 scale-0 translate-y-20 -rotate-12'}`}
-          style={{
-            borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%' // Organic speech bubble shape
-          }}
+      {/* Speech Bubble Overlay - Only show for images or if requested */}
+      {!isVideo && (
+        <div
+          className={`absolute inset-0 flex items-center justify-center pointer-events-none`}
         >
-          {/* Bubble Tail */}
-          <div className="absolute -bottom-6 left-10 w-0 h-0 
-                          border-l-[20px] border-l-transparent
-                          border-r-[0px] border-r-transparent
-                          border-t-[40px] border-t-black
-                          transform -rotate-12">
-          </div>
-          <div className="absolute -bottom-[18px] left-[44px] w-0 h-0 
-                          border-l-[16px] border-l-transparent
-                          border-r-[0px] border-r-transparent
-                          border-t-[32px] border-t-white
-                          transform -rotate-12">
-          </div>
+          <div className={`relative bg-white border-4 border-black rounded-[50%] p-8 w-64 h-48 flex flex-col items-center justify-center shadow-[8px_8px_0px_rgba(0,0,0,0.2)]
+                          transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] origin-bottom-left
+                          ${showOverlay ? 'opacity-100 scale-100 translate-y-0 rotate-0' : 'opacity-0 scale-0 translate-y-20 -rotate-12'}`}
+            style={{
+              borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%' // Organic speech bubble shape
+            }}
+          >
+            {/* Bubble Tail */}
+            <div className="absolute -bottom-6 left-10 w-0 h-0 
+                            border-l-[20px] border-l-transparent
+                            border-r-[0px] border-r-transparent
+                            border-t-[40px] border-t-black
+                            transform -rotate-12">
+            </div>
+            <div className="absolute -bottom-[18px] left-[44px] w-0 h-0 
+                            border-l-[16px] border-l-transparent
+                            border-r-[0px] border-r-transparent
+                            border-t-[32px] border-t-white
+                            transform -rotate-12">
+            </div>
 
-          {/* Content */}
-          <div className="text-center z-10">
-            <h3 className="font-black text-2xl mb-2 tracking-tighter transform -rotate-2">
-              OPEN OVERLAY!
-            </h3>
-          </div>
+            {/* Content */}
+            <div className="text-center z-10">
+              <h3 className="font-black text-2xl mb-2 tracking-tighter transform -rotate-2">
+                OPEN OVERLAY!
+              </h3>
+            </div>
 
-          {/* Decorative lines */}
-          <div className="absolute top-4 right-6 w-4 h-1 bg-black rounded-full transform rotate-12 opacity-20"></div>
-          <div className="absolute bottom-6 left-6 w-2 h-2 bg-black rounded-full opacity-20"></div>
+            {/* Decorative lines */}
+            <div className="absolute top-4 right-6 w-4 h-1 bg-black rounded-full transform rotate-12 opacity-20"></div>
+            <div className="absolute bottom-6 left-6 w-2 h-2 bg-black rounded-full opacity-20"></div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -66,7 +80,21 @@ function Book() {
   const bookRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
-  const totalPages = 40;
+
+  // Pages configuration
+  const pages = [
+    { src: "scene 1.1.png", type: "image" },
+    { src: "scene 1.2.png", type: "image" },
+    { src: "scene 1.3.png", type: "image" },
+    { src: "SCENE 13 - PANEL 1.png", type: "image" },
+    { src: "SCENE 13 - PANEL 2.mp4", type: "video" },
+    { src: "SCENE 14 - PANEL 1-.mp4", type: "video" },
+    { src: "SCENE 14 - PANEL 2 (Animated).mp4", type: "video" },
+    { src: "SCENE 15 - PANEL 1.mp4", type: "video" },
+    { src: "SCENE 15 - PANEL 2.mp4", type: "video" },
+  ];
+
+  const totalPages = pages.length + 2; // Cover + Back Cover + Pages
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isNightMode, setIsNightMode] = useState(false);
   const [activeDialog, setActiveDialog] = useState(null);
@@ -331,33 +359,6 @@ function Book() {
                 <p className="text-xs text-purple-300/60">Mel Creatives Presents</p>
               </div>
             </div>
-          </div>
-
-          {/* Page 1 */}
-          <div className="page bg-white p-0 overflow-hidden">
-            <ImageWithOverlay
-              src={`${import.meta.env.BASE_URL}/scene 1.1.png`}
-              alt="Page 1"
-              pageNum={1}
-            />
-          </div>
-
-          {/* Page 2 */}
-          <div className="page bg-white p-0 overflow-hidden">
-            <ImageWithOverlay
-              src={`${import.meta.env.BASE_URL}/scene 1.2.png`}
-              alt="Page 2"
-              pageNum={2}
-            />
-          </div>
-
-          {/* Page 3 */}
-          <div className="page bg-white p-0 overflow-hidden">
-            <ImageWithOverlay
-              src={`${import.meta.env.BASE_URL}/scene 1.3.png`}
-              alt="Page 3"
-              pageNum={3}
-            />
           </div>
 
           {/* Back Cover */}
