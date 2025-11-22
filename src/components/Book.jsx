@@ -336,12 +336,29 @@ function Book() {
           {/* Page 1 */}
           <div className="page bg-white p-0 overflow-hidden">
             <ImageWithOverlay
-              src={`${import.meta.env.BASE_URL}SCENE 13 - PANEL 1.png`}
+              src={`${import.meta.env.BASE_URL}public/scene 1.1.png`}
               alt="Page 1"
               pageNum={1}
             />
           </div>
 
+          {/* Page 2 */}
+          <div className="page bg-white p-0 overflow-hidden">
+            <ImageWithOverlay
+              src={`${import.meta.env.BASE_URL}public/scene 1.2.png`}
+              alt="Page 2"
+              pageNum={2}
+            />
+          </div>
+
+          {/* Page 3 */}
+          <div className="page bg-white p-0 overflow-hidden">
+            <ImageWithOverlay
+              src={`${import.meta.env.BASE_URL}public/scene 1.3.png`}
+              alt="Page 3"
+              pageNum={3}
+            />
+          </div>
 
           {/* Back Cover */}
           <div className="page cover bg-gradient-to-br from-indigo-900 via-purple-800 to-violet-900 text-white flex flex-col items-center justify-center p-8 border-l-4 border-purple-950 relative overflow-hidden"
