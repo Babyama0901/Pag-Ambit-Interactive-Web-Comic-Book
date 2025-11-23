@@ -28,6 +28,7 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText }) => {
           src={src}
           alt={alt}
           className="w-full h-full object-contain shadow-sm"
+          style={{ transform: 'scale(1.03)' }}
           onError={(e) => { e.target.src = 'https://placehold.co/450x636/e9d5ff/6b21a8?text=Page+' + pageNum }}
         />
       )}
