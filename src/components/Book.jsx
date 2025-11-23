@@ -10,14 +10,14 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText }) => {
 
   return (
     <div
-      className="relative w-full h-full group overflow-hidden bg-white"
+      className="relative w-full h-full group overflow-hidden bg-white flex items-center justify-center p-4"
       onMouseEnter={() => setShowOverlay(true)}
       onMouseLeave={() => setShowOverlay(false)}
     >
       {isVideo ? (
         <video
           src={src}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain shadow-sm"
           autoPlay
           loop
           muted
@@ -27,7 +27,7 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText }) => {
         <img
           src={src}
           alt={alt}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-contain shadow-sm"
           onError={(e) => { e.target.src = 'https://placehold.co/450x636/e9d5ff/6b21a8?text=Page+' + pageNum }}
         />
       )}
