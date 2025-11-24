@@ -323,7 +323,7 @@ function Book() {
   };
 
   return (
-    <div ref={containerRef} className={`relative w-full min-h-screen flex flex-col items-center justify-center transition-colors duration-500 ${isNightMode ? 'bg-slate-950/50' : ''} overflow-y-auto py-10`}>
+    <div ref={containerRef} className={`relative w-full min-h-screen flex flex-col items-center justify-start transition-colors duration-500 ${isNightMode ? 'bg-slate-950/50' : ''} overflow-y-auto pt-24 pb-10`}>
 
       {/* Book Container */}
       <div className="relative z-10 flex items-center justify-center">
