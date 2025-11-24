@@ -649,8 +649,8 @@ function Book() {
 
         {/* Hidden Audio Element */}
         <audio ref={audioRef} src={`${import.meta.env.BASE_URL}Page Turn Sound Effect.mp3`} preload="auto" />
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }
 
