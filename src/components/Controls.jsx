@@ -47,7 +47,7 @@ const Controls = ({
     return (
         <>
             {/* Floating Dynamic Island Control Bar */}
-            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-4 w-full max-w-3xl px-4 pointer-events-none">
+            <div className="relative -mt-28 z-50 flex flex-col items-center gap-4 w-full max-w-3xl px-4 pointer-events-none">
 
                 {/* Main Control Pill - iOS 26 Glass Effect */}
                 <div className="pointer-events-auto relative group">
