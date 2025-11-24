@@ -116,14 +116,14 @@ const Controls = ({
                         <span className="text-white/30 text-xs font-medium uppercase tracking-wider">of {totalPages}</span>
                     </div>
 
-                    <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden relative max-w-xs sm:max-w-sm">
+                    <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden relative max-w-[120px] sm:max-w-[160px]">
                         <div
-                            className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(168,85,247,0.5)]"
+                            className="h-full bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(168,85,247,0.5)]"
                             style={{ width: `${progress}%` }}
                         />
                     </div>
-                    <div className="mt-1.5 text-[10px] font-bold text-white/60 tracking-[0.2em] uppercase">
-                        {progress}% Completed
+                    <div className="mt-1.5 text-[9px] font-bold text-white/50 tracking-[0.2em] uppercase">
+                        {progress}% Done
                     </div>
                 </div>
 
@@ -134,7 +134,7 @@ const Controls = ({
                             onClick={onToggleMute}
                             icon={isMuted ? "M5.586 5.586a2 2 0 002.828 0L16 13.172V17l-4.586-4.586-2.828 2.828A2 2 0 015.586 12.414l2.828-2.828-2.828-2.828z M12 8.828L16 4.828V8.828z" : "M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"}
                             active={!isMuted}
-                            className={isMuted ? "text-white/40" : "text-white"}
+                            className={!isMuted ? "bg-indigo-500/20 text-indigo-300 shadow-[0_0_10px_rgba(99,102,241,0.3)] hover:bg-indigo-500/30" : "text-white/40 hover:text-white"}
                             label={isMuted ? "Unmute" : "Mute"}
                         />
                         <ControlButton
@@ -167,7 +167,7 @@ const Controls = ({
 const ControlButton = ({ onClick, icon, label, active = false, className = "" }) => (
     <button
         onClick={onClick}
-        className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 ${active ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)] scale-105' : 'text-white hover:bg-white/10 hover:scale-110'} ${className}`}
+        className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 ${active && !className.includes('bg-') ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)] scale-105' : ''} ${!active && !className ? 'text-white hover:bg-white/10 hover:scale-110' : ''} ${className}`}
         title={label}
     >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
