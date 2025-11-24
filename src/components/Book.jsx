@@ -85,37 +85,37 @@ function Book() {
   // Pages configuration
   const pages = [
     { type: "toc" },
-    // Scene 1
-    { src: "Scene1/scene 1.1.png", type: "image", hasSpeechBubble: true, speechText: "Welcome to Scene 1!" },
-    { src: "Scene1/scene 1.2.png", type: "image", hasSpeechBubble: true, speechText: "Something is happening..." },
-    { src: "Scene1/scene 1.3.png", type: "image", hasSpeechBubble: true, speechText: "Watch out!" },
+    // Pages removed as requested
+    // { src: "Scene1/scene 1.1.png", type: "image", hasSpeechBubble: true, speechText: "Welcome to Scene 1!" },
+    // { src: "Scene1/scene 1.2.png", type: "image", hasSpeechBubble: true, speechText: "Something is happening..." },
+    // { src: "Scene1/scene 1.3.png", type: "image", hasSpeechBubble: true, speechText: "Watch out!" },
 
     // Scene 5
-    { src: "Scene5/5.1.png", type: "image" },
-    { src: "Scene5/5.2.png", type: "image" },
-    { src: "Scene5/5.3.png", type: "image" },
-    { src: "Scene5/5.4.png", type: "image" },
-    { src: "Scene5/5.5.png", type: "image" },
-    { src: "Scene5/5.6.png", type: "image" },
+    // { src: "Scene5/5.1.png", type: "image" },
+    // { src: "Scene5/5.2.png", type: "image" },
+    // { src: "Scene5/5.3.png", type: "image" },
+    // { src: "Scene5/5.4.png", type: "image" },
+    // { src: "Scene5/5.5.png", type: "image" },
+    // { src: "Scene5/5.6.png", type: "image" },
 
     // Scene 6
-    { src: "Scene6/6.1.png", type: "image" },
-    { src: "Scene6/6.2.png", type: "image" },
-    { src: "Scene6/6.3.png", type: "image" },
-    { src: "Scene6/6.4.png", type: "image" },
-    { src: "Scene6/6.5.png", type: "image" },
-    { src: "Scene6/6.6.png", type: "image" },
+    // { src: "Scene6/6.1.png", type: "image" },
+    // { src: "Scene6/6.2.png", type: "image" },
+    // { src: "Scene6/6.3.png", type: "image" },
+    // { src: "Scene6/6.4.png", type: "image" },
+    // { src: "Scene6/6.5.png", type: "image" },
+    // { src: "Scene6/6.6.png", type: "image" },
 
     // Scene 7
-    { src: "Scene7/7.1.png", type: "image" },
-    { src: "Scene7/7.2.png", type: "image" },
-    { src: "Scene7/7.3.png", type: "image" },
-    { src: "Scene7/7.4.png", type: "image" },
+    // { src: "Scene7/7.1.png", type: "image" },
+    // { src: "Scene7/7.2.png", type: "image" },
+    // { src: "Scene7/7.3.png", type: "image" },
+    // { src: "Scene7/7.4.png", type: "image" },
 
     // Scene 8
-    { src: "Scene8/8.1.png", type: "image" },
-    { src: "Scene8/8.2.png", type: "image" },
-    { src: "Scene8/8.3.png", type: "image" },
+    // { src: "Scene8/8.1.png", type: "image" },
+    // { src: "Scene8/8.2.png", type: "image" },
+    // { src: "Scene8/8.3.png", type: "image" },
   ];
 
   const totalPages = pages.length + 2; // Cover + Back Cover + Pages
@@ -388,28 +388,58 @@ function Book() {
           {pages.map((page, index) => (
             <div key={index} className="page bg-white">
               {page.type === 'toc' ? (
-                <div className="w-full h-full p-8 flex flex-col bg-white">
-                  <div className="border-b-2 border-black pb-4 mb-8">
-                    <h2 className="text-3xl font-black tracking-tighter uppercase text-center">Table of Contents</h2>
+                <div className="w-full h-full p-10 flex flex-col bg-[#fdfbf7]">
+                  {/* Decorative Header */}
+                  <div className="relative mb-12 text-center">
+                    <div className="absolute inset-0 flex items-center justify-center opacity-10">
+                      <div className="w-32 h-32 rounded-full border-4 border-black"></div>
+                    </div>
+                    <h2 className="relative text-4xl font-serif font-black tracking-widest uppercase text-slate-900 z-10">
+                      Contents
+                    </h2>
+                    <div className="w-16 h-1 bg-purple-600 mx-auto mt-4 rounded-full"></div>
                   </div>
-                  <div className="space-y-4 flex-1">
+
+                  {/* TOC List */}
+                  <div className="flex-1 space-y-6 overflow-y-auto custom-scrollbar px-4">
                     {[
-                      { title: "Scene 1", page: 1 },
-                      { title: "Scene 5", page: 4 },
-                      { title: "Scene 6", page: 10 },
-                      { title: "Scene 7", page: 16 },
-                      { title: "Scene 8", page: 20 }
+                      { title: "Prologue", subtitle: "The Beginning", page: 1 },
+                      { title: "Chapter I", subtitle: "The Awakening", page: 2 },
+                      { title: "Chapter II", subtitle: "The Journey", page: 3 },
+                      { title: "Epilogue", subtitle: "The End", page: 4 }
                     ].map((item, i) => (
                       <div key={i}
-                        className="flex items-center justify-between p-4 hover:bg-purple-50 rounded-lg cursor-pointer group transition-colors border-b border-gray-100"
+                        className="group relative flex items-center justify-between p-4 rounded-xl hover:bg-white hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer border border-transparent hover:border-purple-100"
                         onClick={() => bookRef.current?.pageFlip()?.flip(item.page + 1)}>
-                        <span className="font-bold text-lg group-hover:text-purple-700 transition-colors">{item.title}</span>
-                        <span className="text-gray-400 font-mono">0{item.page + 1}</span>
+
+                        {/* Number */}
+                        <div className="flex items-center gap-4">
+                          <span className="text-3xl font-black text-slate-200 group-hover:text-purple-200 transition-colors font-serif">
+                            {String(i + 1).padStart(2, '0')}
+                          </span>
+                          <div>
+                            <h3 className="font-bold text-slate-800 group-hover:text-purple-900 text-lg tracking-tight">
+                              {item.title}
+                            </h3>
+                            <p className="text-xs text-slate-400 font-medium uppercase tracking-widest group-hover:text-purple-400">
+                              {item.subtitle}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Page Number */}
+                        <div className="w-10 h-10 rounded-full bg-slate-100 group-hover:bg-purple-100 flex items-center justify-center text-slate-400 group-hover:text-purple-600 font-bold text-sm transition-colors">
+                          {item.page}
+                        </div>
                       </div>
                     ))}
                   </div>
-                  <div className="text-center text-gray-400 text-sm mt-8">
-                    © 2024 PAGAMBIT
+
+                  {/* Footer */}
+                  <div className="mt-8 text-center border-t border-slate-200 pt-6">
+                    <p className="text-slate-400 text-xs tracking-[0.2em] uppercase">
+                      Interactive Comic
+                    </p>
                   </div>
                 </div>
               ) : (
