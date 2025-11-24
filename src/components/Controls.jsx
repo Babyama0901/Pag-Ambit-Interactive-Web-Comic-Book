@@ -47,15 +47,15 @@ const Controls = ({
     return (
         <>
             {/* Floating Dynamic Island Control Bar */}
-            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-4 w-full max-w-3xl px-4 pointer-events-none">
+            <div className="relative mt-8 z-50 flex flex-col items-center gap-4 w-full max-w-3xl px-4 pointer-events-none">
 
                 {/* Main Control Pill - iOS 26 Glass Effect */}
                 <div className="pointer-events-auto relative group">
-                    {/* Adaptive Glass Background */}
-                    <div className="absolute inset-0 bg-black/30 backdrop-blur-[40px] backdrop-saturate-150 rounded-[2.5rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-500 group-hover:bg-black/40 group-hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] group-hover:border-white/20" />
+                    {/* Adaptive Glass Background - Brightened for visibility */}
+                    <div className="absolute inset-0 bg-white/10 backdrop-blur-[40px] backdrop-saturate-150 rounded-[2.5rem] border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-500 group-hover:bg-white/15 group-hover:shadow-[0_25px_60px_rgba(0,0,0,0.6)] group-hover:border-white/30" />
 
                     {/* Inner Glow/Reflection */}
-                    <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-b from-white/10 to-transparent opacity-50 pointer-events-none" />
+                    <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-b from-white/20 to-transparent opacity-60 pointer-events-none" />
 
                     {/* Content Container */}
                     <div className="relative p-2 flex items-center gap-2">
