@@ -47,7 +47,7 @@ const Controls = ({
     return (
         <>
             {/* Floating Dynamic Island Control Bar */}
-            <div className="relative -mt-28 z-50 flex flex-col items-center gap-4 w-full max-w-3xl px-4 pointer-events-none">
+            <div className="relative z-50 flex flex-col items-center gap-4 w-full max-w-3xl px-4 pointer-events-none">
 
                 {/* Main Control Pill - iOS 26 Glass Effect */}
                 <div className="pointer-events-auto relative group">
@@ -88,21 +88,7 @@ const Controls = ({
 
                         <div className="w-px h-8 bg-gradient-to-b from-transparent via-white/10 to-transparent mx-2" />
 
-                        {/* Center: Progress Scrubber */}
-                        <div className="flex-1 min-w-[120px] group/scrubber cursor-pointer relative py-4">
-                            <div className="h-1.5 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm border border-white/5">
-                                <div
-                                    className="h-full bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 rounded-full transition-all duration-300 group-hover/scrubber:shadow-[0_0_15px_rgba(168,85,247,0.6)]"
-                                    style={{ width: `${progress}%` }}
-                                />
-                            </div>
-                            {/* Hover Tooltip */}
-                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-xl text-white text-xs font-medium py-1.5 px-3 rounded-full opacity-0 group-hover/scrubber:opacity-100 transition-all duration-300 translate-y-2 group-hover/scrubber:translate-y-0 border border-white/10 shadow-lg pointer-events-none">
-                                {Math.round(progress)}%
-                            </div>
-                        </div>
 
-                        <div className="w-px h-8 bg-gradient-to-b from-transparent via-white/10 to-transparent mx-2" />
 
                         {/* Right: Quick Actions */}
                         <div className="flex items-center gap-1 pr-1">
