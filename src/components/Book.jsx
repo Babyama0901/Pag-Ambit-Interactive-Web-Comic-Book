@@ -82,7 +82,7 @@ function Book() {
     { src: 'Layout/SCENE 4 - PAGE 14.png', alt: 'Scene 4 Page 14' },
     { src: 'Layout/SCENE 4 - PAGE 15.png', alt: 'Scene 4 Page 15' },
     { src: 'Layout/SCENE 4 - PAGE 16.png', alt: 'Scene 4 Page 16' },
-    { src: 'Layout/SCENE 4 - PAGE 17.png', alt: 'Scene 4 Page 17' },
+    { src: 'Layout/SCENE 4 - PAGE 17.png', alt: 'Scene 4 Page 17', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 5 - PAGE 17.png' },
     { src: 'Layout/SCENE 5 - PAGE 18.png', alt: 'Scene 5 Page 18', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 5 - PAGE 18 - DIALOGUE.png' },
     { src: 'Layout/SCENE 5 - PAGE 19.png', alt: 'Scene 5 Page 19' },
     { src: 'Layout/SCENE 5 - PAGE 20.png', alt: 'Scene 5 Page 20' },
