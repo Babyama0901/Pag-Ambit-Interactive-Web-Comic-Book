@@ -6,6 +6,7 @@ import Modal from './Modal';
 // MediaPage Component (handles both Images and Videos)
 const MediaPage = ({ src, alt, pageNum, speechBubbleSrc }) => {
   const [showOverlay, setShowOverlay] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const isVideo = src && src.toLowerCase().endsWith('.mp4');
 
   return (
@@ -14,24 +15,27 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc }) => {
       onMouseEnter={() => setShowOverlay(true)}
       onMouseLeave={() => setShowOverlay(false)}
     >
-      {isVideo ? (
-        <video
-          src={src}
-          className="w-full h-full object-contain shadow-sm"
-          autoPlay
-          loop
-          muted
-          playsInline
-        />
-      ) : (
-        <img
-          src={src}
-          alt={alt}
-          className="w-full h-full object-contain shadow-sm"
-
-          onError={(e) => { e.target.src = 'https://placehold.co/450x636/e9d5ff/6b21a8?text=Page+' + pageNum }}
-        />
-      )}
+      <div className={`w-full h-full transition-opacity duration-700 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+        {isVideo ? (
+          <video
+            src={src}
+            className="w-full h-full object-fill"
+            autoPlay
+            loop
+            muted
+            playsInline
+            onLoadedData={() => setIsLoaded(true)}
+          />
+        ) : (
+          <img
+            src={src}
+            alt={alt}
+            className="w-full h-full object-fill"
+            onLoad={() => setIsLoaded(true)}
+            onError={(e) => { e.target.src = 'https://placehold.co/450x636/e9d5ff/6b21a8?text=Page+' + pageNum }}
+          />
+        )}
+      </div>
 
       {/* Speech Bubble Overlay - Only show for images or if requested */}
       {!isVideo && speechBubbleSrc && (
@@ -54,6 +58,53 @@ function Book() {
   const audioRef = useRef(null);
   const bookRef = useRef(null);
   const [activeDialog, setActiveDialog] = useState(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isNightMode, setIsNightMode] = useState(false);
+
+  const pages = [
+    { src: 'Layout/BOOK COVER.png', alt: 'Cover' },
+    { src: 'Layout/SCENE 1 - PAGE 1.png', alt: 'Scene 1 Page 1' },
+    { src: 'Layout/SCENE 1 - PAGE 2.png', alt: 'Scene 1 Page 2' },
+    { src: 'Layout/SCENE 1 - PAGE 3.png', alt: 'Scene 1 Page 3' },
+    { src: 'Layout/SCENE 2 - PAGE 4.png', alt: 'Scene 2 Page 4', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 4 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 2 - PAGE 5.png', alt: 'Scene 2 Page 5' },
+    { src: 'Layout/SCENE 2 - PAGE 6.png', alt: 'Scene 2 Page 6', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 6 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 2 - PAGE 7.png', alt: 'Scene 2 Page 7', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 7 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 2 - PAGE 8.png', alt: 'Scene 2 Page 8', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 8 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 3 - PAGE 9.png', alt: 'Scene 3 Page 9', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 3 - PAGE 9 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 3 - PAGE 10.png', alt: 'Scene 3 Page 10' },
+    { src: 'Layout/SCENE 3 - PAGE 11.png', alt: 'Scene 3 Page 11' },
+    { src: 'Layout/SCENE 3 - PAGE 12.png', alt: 'Scene 3 Page 12' },
+    { src: 'Layout/SCENE 4 - PAGE 13.png', alt: 'Scene 4 Page 13', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 4 - PAGE 13 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 4 - PAGE 14.png', alt: 'Scene 4 Page 14' },
+    { src: 'Layout/SCENE 4 - PAGE 15.png', alt: 'Scene 4 Page 15' },
+    { src: 'Layout/SCENE 4 - PAGE 16.png', alt: 'Scene 4 Page 16' },
+    { src: 'Layout/SCENE 4 - PAGE 17.png', alt: 'Scene 4 Page 17' },
+    { src: 'Layout/SCENE 5 - PAGE 18.png', alt: 'Scene 5 Page 18', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 5 - PAGE 18 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 5 - PAGE 19.png', alt: 'Scene 5 Page 19' },
+    { src: 'Layout/SCENE 5 - PAGE 20.png', alt: 'Scene 5 Page 20' },
+    { src: 'Layout/SCENE 5 - PAGE 21.png', alt: 'Scene 5 Page 21' },
+    { src: 'Layout/SCENE 5 - PAGE 22.png', alt: 'Scene 5 Page 22' },
+    { src: 'Layout/SCENE 6 - PAGE 23.png', alt: 'Scene 6 Page 23', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 6 - PAGE 23 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 6 - PAGE 24.png', alt: 'Scene 6 Page 24', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 7 - PAGE 24 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 7 - PAGE 25.png', alt: 'Scene 7 Page 25' },
+    { src: 'Layout/SCENE 7 - PAGE 26.png', alt: 'Scene 7 Page 26' },
+    { src: 'Layout/SCENE 8 - PAGE 27.png', alt: 'Scene 8 Page 27', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 8 - PAGE 27 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 8 - PAGE 28.png', alt: 'Scene 8 Page 28', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 9 - PAGE 28 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 9 - PAGE 29.png', alt: 'Scene 9 Page 29' },
+    { src: 'Layout/SCENE 9 - PAGE 30.png', alt: 'Scene 9 Page 30' },
+    { src: 'Layout/SCENE 10 - PAGE 31.png', alt: 'Scene 10 Page 31', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 11 - PAGE 31 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 11 - PAGE 32.png', alt: 'Scene 11 Page 32', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 11 - PAGE 32 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 11 - PAGE 33.png', alt: 'Scene 11 Page 33' },
+    { src: 'Layout/SCENE 11 - PAGE 34.png', alt: 'Scene 11 Page 34' },
+  ];
+
+  useEffect(() => {
+    setTotalPages(pages.length);
+  }, []);
 
   // Audio unlock logic
   useEffect(() => {
@@ -281,6 +332,70 @@ function Book() {
           className="shadow-2xl"
           ref={bookRef}
           onFlip={handleFlip}
+          flippingTime={1000}
+          autoSize={false}
+          drawShadow={true}
+          useMouseEvents={true}
+        >
+          {/* Pages */}
+          {pages.map((page, index) => (
+            <div key={index} className="page bg-white">
+              <MediaPage
+                src={`${import.meta.env.BASE_URL}${page.src || ''}`}
+                alt={`Page ${index + 1}`}
+                pageNum={index + 1}
+                speechBubbleSrc={page.speechBubbleSrc}
+              />
+            </div>
+          ))}
+
+          {/* Back Cover */}
+          <div className="page cover bg-gradient-to-br from-indigo-900 via-purple-800 to-violet-900 text-white flex flex-col items-center justify-center p-8 border-l-4 border-purple-950 relative overflow-hidden"
+            style={{
+              backgroundSize: '200% 200%',
+              animation: 'gradientShift 8s ease infinite reverse'
+            }}>
+            {/* Animated background overlay */}
+            <div className="absolute inset-0 opacity-30" style={{
+              background: 'radial-gradient(circle at 70% 50%, rgba(99, 102, 241, 0.4) 0%, transparent 50%), radial-gradient(circle at 30% 50%, rgba(168, 85, 247, 0.4) 0%, transparent 50%)',
+              animation: 'float 6s ease-in-out infinite reverse'
+            }}></div>
+
+            <div className="text-center space-y-6 relative z-10">
+              {/* Animated icon with floating and glow */}
+              <div className="w-24 h-24 mx-auto bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/20 shadow-inner"
+                style={{
+                  animation: 'float 4s ease-in-out infinite, pulseGlow 3s ease-in-out infinite'
+                }}>
+                <span className="text-3xl" style={{ animation: 'scaleIn 1s ease-out' }}>🏁</span>
+              </div>
+
+              {/* Animated title */}
+              <div style={{ animation: 'fadeInDown 1.2s ease-out 0.3s both' }}>
+                <h1 className="text-3xl font-black tracking-tighter mb-2 font-serif bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent"
+                  style={{
+                    backgroundSize: '200% auto',
+                    animation: 'gradientShift 4s linear infinite, fadeInDown 1.2s ease-out 0.3s both'
+                  }}>
+                  THE END
+                </h1>
+                <p className="text-purple-200 text-xs tracking-[0.2em] uppercase" style={{ animation: 'fadeInUp 1.2s ease-out 0.5s both' }}>
+                  Thanks for reading
+                </p>
+              </div>
+
+              {/* Animated footer */}
+              <div className="pt-8" style={{ animation: 'fadeInUp 1.2s ease-out 0.7s both' }}>
+                <p className="text-[10px] text-purple-300/60">© 2024 Mel Creatives</p>
+              </div>
+            </div>
+          </div>
+        </HTMLFlipBook>
+
+        {/* Controls */}
+        <Controls
+          currentPage={currentPage}
+          totalPages={totalPages}
           isMuted={isMuted}
           isFullscreen={isFullscreen}
           isNightMode={isNightMode}
