@@ -98,7 +98,7 @@ function Book() {
     { src: 'Layout/SCENE 9 - PAGE 30.png', alt: 'Scene 9 Page 30' },
     { src: 'Layout/SCENE 10 - PAGE 31.png', alt: 'Scene 10 Page 31' },
     { src: 'Layout/SCENE 11 - PAGE 32.png', alt: 'Scene 11 Page 32', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 11 - PAGE 32 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 11 - PAGE 33.png', alt: 'Scene 11 Page 33', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 11 - PAGE 31 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 11 - PAGE 33.png', alt: 'Scene 11 Page 33', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 11 - PAGE 33 - DIALOGUE.png' },
     { src: 'Layout/SCENE 11 - PAGE 34.png', alt: 'Scene 11 Page 34' },
   ];
 
