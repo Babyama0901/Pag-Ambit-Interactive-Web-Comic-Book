@@ -267,6 +267,15 @@ function Book() {
     }
   };
 
+  const handleDownload = () => setActiveDialog('save');
+  const handleShare = () => setActiveDialog('share');
+  const handleHighlight = () => setActiveDialog('highlight');
+  const handleNotes = () => setActiveDialog('notes');
+  const handleSearch = () => setActiveDialog('search');
+  const handleTableOfContents = () => setActiveDialog('contents');
+  const toggleNightMode = () => setIsNightMode(!isNightMode);
+  const handlePrint = () => setActiveDialog('print');
+
   return (
     <div className="relative z-10 flex items-center justify-center">
       <HTMLFlipBook
@@ -529,6 +538,36 @@ function Book() {
               <div className="text-white/40 text-xs">PNG Image</div>
             </div>
           </button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={activeDialog === 'notes'}
+        onClose={() => setActiveDialog(null)}
+        title="Notes"
+      >
+        <div className="text-center text-white/60 py-8">
+          Notes feature coming soon!
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={activeDialog === 'search'}
+        onClose={() => setActiveDialog(null)}
+        title="Search"
+      >
+        <div className="text-center text-white/60 py-8">
+          Search feature coming soon!
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={activeDialog === 'highlight'}
+        onClose={() => setActiveDialog(null)}
+        title="Highlights"
+      >
+        <div className="text-center text-white/60 py-8">
+          Highlights feature coming soon!
         </div>
       </Modal>
 
