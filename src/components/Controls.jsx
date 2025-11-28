@@ -21,7 +21,8 @@ const Controls = ({
     onPrint,
     onJumpToCover,
     onJumpToEnd,
-    onJumpToPage
+    onJumpToPage,
+    onMagnifier
 }) => {
     const [showMoreMenu, setShowMoreMenu] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
@@ -125,11 +126,13 @@ const Controls = ({
                             <MenuButton icon="M4 6h16M4 12h16M4 18h16" label="Contents" onClick={onTableOfContents} />
                             <MenuButton icon="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" label="Bookmark" onClick={onBookmark} />
                             <MenuButton icon="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" label="Search" onClick={onSearch} />
-                            <MenuButton icon="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" label="Share" onClick={onShare} />
+                            <MenuButton icon="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" label="Magnifier" onClick={onMagnifier} />
 
+                            <MenuButton icon="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" label="Share" onClick={onShare} />
                             <MenuButton icon="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" label={isNightMode ? "Day Mode" : "Night Mode"} onClick={onToggleNightMode} active={isNightMode} />
                             <MenuButton icon="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" label="Download" onClick={onDownload} />
                             <MenuButton icon="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2.4-9h6m-1 6v6m-4-6v6m2-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 14h16" label="Print" onClick={onPrint} />
+
                             <MenuButton icon="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" label="Notes" onClick={onNotes} />
                         </div>
                     </div>
