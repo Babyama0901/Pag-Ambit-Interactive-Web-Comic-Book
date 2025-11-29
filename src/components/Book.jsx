@@ -196,6 +196,20 @@ function Book() {
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
+  // Keyboard navigation for page flipping
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowLeft') {
+        prevPage();
+      } else if (e.key === 'ArrowRight') {
+        nextPage();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleFlip = (e) => {
     if (audioRef.current && !isMuted) {
       audioRef.current.currentTime = 0;

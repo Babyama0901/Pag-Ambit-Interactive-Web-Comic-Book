@@ -1,0 +1,22 @@
+--- a/src/components/Book.jsx
++++ b/src/components/Book.jsx
+@@ -196,6 +196,18 @@
+     return () => window.removeEventListener('resize', updateDimensions);
+   }, []);
+ 
++  // Keyboard navigation for page flipping
++  useEffect(() => {
++    const handleKeyDown = (e) => {
++      if (e.key === 'ArrowLeft') {
++        prevPage();
++      } else can (e.key === 'ArrowRight') {
++        nextPage();
++      }
++    };
++    window.addEventListener('keydown', handleKeyDown);
++    return () => window.removeEventListener('keydown', handleKeyDown);
++  }, []);
++
+   const handleFlip = (e) => {
+     if (audioRef.current &&!isMuted) {
+       audioRef.current.currentTime = 0;
