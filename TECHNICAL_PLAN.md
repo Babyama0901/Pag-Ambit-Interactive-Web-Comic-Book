@@ -31,9 +31,10 @@ The application follows a modular, component-driven architecture.
 The application is organized into distinct functional units:
 
 *   **`App.jsx`**: The root component that handles global layout and initialization.
-*   **`Book.jsx`**: The central container component. It manages the `HTMLFlipBook` instance, maintains the state of the current page, and coordinates interactions between the pages and the controls.
+*   **`Book.jsx`**: The central container component. It manages the `HTMLFlipBook` instance, maintains the state of the current page, coordinates interactions between the pages and the controls, and handles the rendering of the `Magnifier` overlay and `Notes` dialogs.
 *   **`MediaPage.jsx`**: A reusable sub-component responsible for rendering individual page content. It intelligently handles different media types (static images vs. MP4 videos) and manages overlay interactions (e.g., speech bubbles).
-*   **`Controls.jsx`**: A detached UI layer that provides user inputs (navigation, zoom, settings) without interfering with the book's visual flow. It includes a "Help" dialog and a "More Options" menu for secondary actions.
+*   **`Controls.jsx`**: A detached UI layer that provides user inputs (navigation, zoom slider, magnifier toggle, settings) without interfering with the book's visual flow. It includes a "Survey" button, "Help" dialog, and a "More Options" menu for secondary actions.
+*   **`Magnifier.jsx`**: A specialized component that renders a magnifying glass effect. It tracks mouse movement over the book and displays a zoomed-in portion of the content, enhancing readability for detailed artwork.
 *   **`Modal.jsx`**: A generic overlay component used for secondary interfaces like the Table of Contents, Settings, and Sharing options. It features advanced entrance/exit animations and a glassmorphism effect using backdrop filters.
 
 ### 3.2 State Management
@@ -67,6 +68,16 @@ A custom script (`capture_screenshots.js`) utilizes Puppeteer to:
 4.  Capture high-resolution screenshots of every page and the UI state.
 This ensures that documentation and thesis materials always reflect the latest build of the application.
 
+### 4.5 Zoom & Magnification
+To enhance accessibility and detail viewing, the system implements two distinct zoom mechanisms:
+*   **Global Zoom**: A slider control that scales the entire book container using CSS transforms, allowing users to adjust the overall size of the comic.
+*   **Magnifier Tool**: A localized zoom lens that follows the cursor, providing a high-magnification view of specific areas without altering the overall layout.
+
+### 4.6 Enhanced Navigation & Integrations
+*   **Keyboard Support**: Users can navigate pages using the Left and Right arrow keys for a more native reading experience.
+*   **Notes Integration**: A dedicated "Notes" dialog provides quick access to external note-taking platforms (Google Keep, iOS Notes, Notion), allowing users to jot down thoughts while reading.
+*   **Survey Feedback**: A direct integration with Google Forms allows users to submit feedback and reviews directly from the controls interface.
+
 ## 5. User Experience (UX) Design
 The application prioritizes a "Premium" feel through specific design choices:
 *   **Glassmorphism**: Extensive use of `backdrop-blur` and semi-transparent backgrounds to create depth and a modern aesthetic.
@@ -82,5 +93,5 @@ The application prioritizes a "Premium" feel through specific design choices:
 ## 7. Future Roadmap
 The architecture is designed to be extensible. Planned features include:
 *   **Deep Linking**: URL parameters to open the book at a specific page.
-*   **Search Functionality**: Indexing text content for client-side search.
+*   **Full Search Implementation**: Expanding the current placeholder search dialog into a fully functional client-side text search engine.
 *   **User Preferences Persistence**: Using `localStorage` to save reading progress and theme settings.
