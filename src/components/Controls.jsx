@@ -121,7 +121,7 @@ const Controls = ({
                 </div>
             )}
 
-            <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 w-auto max-w-3xl transition-all duration-300">
+            <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 w-auto max-w-5xl transition-all duration-300">
 
                 {/* More Menu Popup */}
                 {showMoreMenu && (
@@ -138,7 +138,6 @@ const Controls = ({
                             <MenuButton icon="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2.4-9h6m-1 6v6m-4-6v6m2-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 14h16" label="Print" onClick={onPrint} />
 
                             <MenuButton icon="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" label="Notes" onClick={onNotes} />
-                            <MenuButton icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" label="Survey" onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSfYRcTWuNWiLPIFYqDup_AFKk48XFBGkSWXTGrUS93fB3zlPg/viewform?usp=dialog', '_blank')} />
                         </div>
 
 
@@ -146,7 +145,7 @@ const Controls = ({
                 )}
 
                 {/* Main Control Bar - Compact */}
-                <div className="bg-black/80 backdrop-blur-xl rounded-full border border-white/20 shadow-2xl px-5 py-2.5 flex items-center justify-between gap-3 sm:gap-5 transition-all duration-300 hover:bg-black/90 hover:scale-[1.01]">
+                <div className="bg-black/80 backdrop-blur-xl rounded-full border border-white/20 shadow-2xl px-5 py-2.5 flex items-center justify-evenly gap-6 sm:gap-8 transition-all duration-300 hover:bg-black/90 hover:scale-[1.01]">
 
                     {/* Navigation Group */}
                     <div className="flex items-center gap-1 bg-white/10 rounded-full p-1 border border-white/5">
@@ -190,6 +189,11 @@ const Controls = ({
                                 onClick={() => setShowHelp(true)}
                                 icon="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                 label="Help"
+                            />
+                            <ControlButton
+                                onClick={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSfYRcTWuNWiLPIFYqDup_AFKk48XFBGkSWXTGrUS93fB3zlPg/viewform?usp=dialog', '_blank')}
+                                icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                                label="Survey"
                             />
                         </div>
 
