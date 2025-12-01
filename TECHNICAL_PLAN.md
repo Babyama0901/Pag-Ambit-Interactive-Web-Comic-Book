@@ -76,6 +76,9 @@ To enhance accessibility and detail viewing, the system implements two distinct 
 ### 4.6 Enhanced Navigation & Integrations
 *   **Keyboard Support**: Users can navigate pages using the Left and Right arrow keys for a more native reading experience.
 *   **Notes Integration**: A dedicated "Notes" dialog provides quick access to external note-taking platforms (Google Keep, iOS Notes, Notion), allowing users to jot down thoughts while reading.
+*   **Save/Download Options**: UI dialogs allow users to save the current page as PNG or download the entire book as PDF (UI implemented).
+*   **Highlight Tool**: An interactive highlighting feature with a dedicated UI dialog (feature coming soon).
+*   **Share Functionality**: Social sharing options for Twitter and Facebook, with direct link copying.
 *   **Survey Feedback**: A direct integration with Google Forms allows users to submit feedback and reviews directly from the controls interface.
 
 ## 5. User Experience (UX) Design

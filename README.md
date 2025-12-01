@@ -10,10 +10,10 @@ An immersive digital comic book experience built with modern web technologies. T
 
 *   **Realistic Page Flip**: Utilizes `react-pageflip` to simulate the tactile feel of reading a physical book.
 *   **Interactive Controls**:
-    *   **Navigation**: Next/Prev buttons, Jump to Cover/End, Table of Contents.
-    *   **View Modes**: Fullscreen support and Night Mode for comfortable reading.
-    *   **Tools**: Bookmarking, Search (UI), Notes (links to external apps), and Print support.
-*   **Multimedia Support**: Seamlessly handles both high-quality images and video content within the book pages.
+    *   **Navigation**: Next/Prev buttons, Jump to Cover/End, Table of Contents, keyboard arrow keys.
+    *   **View Modes**: Fullscreen support, Night Mode, and adjustable zoom (0.5x-3.0x).
+    *   **Tools**: Bookmarking, Search (UI), Highlight (UI), Notes (links to external apps), Save/Download (UI), Share, and Print support.
+*   **Multimedia Support**: Seamlessly handles both high-quality images and video content within the book pages, with interactive speech bubble overlays on hover.
 *   **Responsive Design**: Automatically adjusts layout and dimensions for mobile devices and desktop screens.
 *   **Audio Experience**: Integrated page-turn sound effects with mute control.
 
