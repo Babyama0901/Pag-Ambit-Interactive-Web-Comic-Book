@@ -11,10 +11,15 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc }) => {
 
   return (
     <div
-      className="relative w-full h-full group overflow-hidden bg-white flex items-center justify-center p-0"
-      onMouseEnter={() => setShowOverlay(true)}
-      onMouseLeave={() => setShowOverlay(false)}
+      className="relative w-full h-full group overflow-hidden bg-white flex items-center justify-center p-0 cursor-pointer"
+      onClick={() => setShowOverlay(!showOverlay)}
     >
+      {/* Watermark */}
+      < div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center opacity-[0.15] select-none" >
+        <div className="text-4xl font-black text-gray-500 transform -rotate-45">
+          PAG-AMBIT COMIC
+        </div>
+      </div >
       <div className={`w-full h-full transition-opacity duration-700 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
         {isVideo ? (
           <video
@@ -38,19 +43,21 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc }) => {
       </div>
 
       {/* Speech Bubble Overlay - Only show for images or if requested */}
-      {!isVideo && speechBubbleSrc && (
-        <div
-          className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-500 ease-in-out
+      {
+        !isVideo && speechBubbleSrc && (
+          <div
+            className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-500 ease-in-out
             ${showOverlay ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-        >
-          <img
-            src={`${import.meta.env.BASE_URL}${speechBubbleSrc}`}
-            alt="Dialogue"
-            className="w-full h-full object-contain"
-          />
-        </div>
-      )}
-    </div>
+          >
+            <img
+              src={`${import.meta.env.BASE_URL}${speechBubbleSrc}`}
+              alt="Dialogue"
+              className="w-full h-full object-contain"
+            />
+          </div>
+        )
+      }
+    </div >
   );
 };
 
@@ -310,11 +317,10 @@ function Book() {
   const handleNotes = () => setActiveDialog('notes');
   const handleHighlight = () => setActiveDialog('highlight');
   const handleSearch = () => setActiveDialog('search');
-  const handleDownload = () => setActiveDialog('save');
   const handleShare = () => setActiveDialog('share');
   const handleTableOfContents = () => setActiveDialog('contents');
   const toggleNightMode = () => setIsNightMode(!isNightMode);
-  const handlePrint = () => setActiveDialog('print');
+  const handleWalkthrough = () => setActiveDialog('walkthrough');
 
   const handleZoomChange = (e) => {
     const newValue = parseFloat(e.target.value);
@@ -389,14 +395,13 @@ function Book() {
         onToggleMute={toggleMute}
         onToggleFullscreen={toggleFullScreen}
         onBookmark={handleBookmark}
-        onDownload={handleDownload}
         onShare={handleShare}
         onHighlight={handleHighlight}
         onNotes={handleNotes}
         onSearch={handleSearch}
         onTableOfContents={handleTableOfContents}
         onToggleNightMode={toggleNightMode}
-        onPrint={handlePrint}
+        onWalkthrough={handleWalkthrough}
         onJumpToCover={handleJumpToCover}
         onJumpToEnd={handleJumpToEnd}
         onJumpToPage={handleJumpToPage}
@@ -504,35 +509,6 @@ function Book() {
         </div>
       </Modal>
 
-      <Modal
-        isOpen={activeDialog === 'print'}
-        onClose={() => setActiveDialog(null)}
-        title="Print"
-      >
-        <div className="text-center space-y-6">
-          <div className="w-24 h-32 mx-auto bg-white rounded shadow-lg flex items-center justify-center text-black/20 font-bold text-4xl">
-            {currentPage + 1}
-          </div>
-          <p className="text-white/70">Ready to print page {currentPage + 1}?</p>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setActiveDialog(null)}
-              className="flex-1 p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => {
-                window.print();
-                setActiveDialog(null);
-              }}
-              className="flex-1 p-3 rounded-xl bg-white text-black font-bold hover:bg-white/90 transition-all"
-            >
-              Print Now
-            </button>
-          </div>
-        </div>
-      </Modal>
 
       <Modal
         isOpen={activeDialog === 'share'}
@@ -570,31 +546,20 @@ function Book() {
       </Modal>
 
       <Modal
-        isOpen={activeDialog === 'save'}
+        isOpen={activeDialog === 'walkthrough'}
         onClose={() => setActiveDialog(null)}
-        title="Save / Download"
+        title="Walkthrough Video"
       >
-        <div className="space-y-3">
-          <button className="w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center gap-4 group transition-all">
-            <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-400">
-              PDF
-            </div>
-            <div className="text-left">
-              <div className="text-white font-medium">Download as PDF</div>
-              <div className="text-white/40 text-xs">High quality format</div>
-            </div>
-          </button>
-
-          <button className="w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center gap-4 group transition-all">
-            <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
-              IMG
-            </div>
-            <div className="text-left">
-              <div className="text-white font-medium">Save Current Page</div>
-              <div className="text-white/40 text-xs">PNG Image</div>
-            </div>
-          </button>
+        <div className="aspect-video w-full bg-black rounded-xl overflow-hidden">
+          <video
+            src="https://www.w3schools.com/html/mov_bbb.mp4"
+            controls
+            className="w-full h-full object-cover"
+          >
+            Your browser does not support the video tag.
+          </video>
         </div>
+        <p className="text-white/50 text-sm mt-3 text-center">Watch how to navigate and use features</p>
       </Modal>
 
       <Modal
