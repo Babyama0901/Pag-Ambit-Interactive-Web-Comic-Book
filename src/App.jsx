@@ -10,17 +10,36 @@ function App() {
     const handleDragStart = (e) => e.preventDefault();
 
     const handleKeyDown = (e) => {
-      // Prevent F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-      if (
-        e.keyCode === 123 ||
-        (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) ||
-        (e.ctrlKey && e.keyCode === 85)
-      ) {
+      const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+
+      // Prevent F12
+      if (e.keyCode === 123) {
         e.preventDefault();
+        return;
       }
-      // Prevent Ctrl+S (Save), Ctrl+P (Print)
-      if ((e.ctrlKey && e.keyCode === 83) || (e.ctrlKey && e.keyCode === 80)) {
+
+      // Prevent Inspect Element: Ctrl/Cmd + Shift + I/J/C
+      if (isCtrlOrCmd && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
         e.preventDefault();
+        return;
+      }
+
+      // Prevent View Source: Ctrl/Cmd + U
+      if (isCtrlOrCmd && e.keyCode === 85) {
+        e.preventDefault();
+        return;
+      }
+
+      // Prevent Save/Print: Ctrl/Cmd + S/P
+      if (isCtrlOrCmd && (e.keyCode === 83 || e.keyCode === 80)) {
+        e.preventDefault();
+        return;
+      }
+
+      // Prevent Copy/Cut/Select All: Ctrl/Cmd + C/X/A
+      if (isCtrlOrCmd && (e.keyCode === 67 || e.keyCode === 88 || e.keyCode === 65)) {
+        e.preventDefault();
+        return;
       }
     };
 

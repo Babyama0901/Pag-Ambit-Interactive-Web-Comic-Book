@@ -4,7 +4,7 @@ import Controls from './Controls';
 import Modal from './Modal';
 
 // MediaPage Component (handles both Images and Videos)
-const MediaPage = ({ src, alt, pageNum, speechBubbleSrc }) => {
+const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, showAllSpeechBubbles }) => {
   const [showOverlay, setShowOverlay] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const isVideo = src && src.toLowerCase().endsWith('.mp4');
@@ -47,7 +47,7 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc }) => {
         !isVideo && speechBubbleSrc && (
           <div
             className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-500 ease-in-out
-            ${showOverlay ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+            ${(showOverlay || showAllSpeechBubbles) ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
           >
             <img
               src={`${import.meta.env.BASE_URL}${speechBubbleSrc}`}
@@ -71,6 +71,7 @@ function Book() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isNightMode, setIsNightMode] = useState(false);
   const [zoom, setZoom] = useState(1.0);
+  const [showAllSpeechBubbles, setShowAllSpeechBubbles] = useState(false); // New State
 
   const pages = [
     { src: 'Layout/FRONT BOOK COVER.png', alt: 'Front Cover' },
@@ -280,6 +281,10 @@ function Book() {
     }
   };
 
+  const toggleSpeechBubbles = () => {
+    setShowAllSpeechBubbles(!showAllSpeechBubbles);
+  };
+
   const toggleFullScreen = async () => {
     try {
       if (!document.fullscreenElement) {
@@ -331,7 +336,21 @@ function Book() {
   const zoomOut = () => setZoom((prev) => Math.max(prev - 0.1, 0.5));
 
   return (
-    <div className="relative z-10 flex items-center justify-center">
+    <div className="relative z-10 flex min-h-screen flex-col items-center justify-center py-8">
+      {/* Top Toggle Switch */}
+      <div className="mb-6 flex items-center gap-3 bg-black/40 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/10 shadow-xl transition-all hover:bg-black/50">
+        <span className="text-white font-medium text-sm tracking-wide">Show Dialogues</span>
+        <button
+          onClick={toggleSpeechBubbles}
+          className={`relative w-12 h-6 rounded-full transition-colors duration-300 ease-in-out focus:outline-none ${showAllSpeechBubbles ? 'bg-indigo-500' : 'bg-white/20'}`}
+          title="Toggle Dialogues"
+        >
+          <div
+            className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ease-in-out ${showAllSpeechBubbles ? 'translate-x-6' : 'translate-x-0'}`}
+          />
+        </button>
+      </div>
+
       <div
         className="transition-transform duration-300 ease-in-out"
         style={{
@@ -368,6 +387,7 @@ function Book() {
                 alt={`Page ${index + 1}`}
                 pageNum={index + 1}
                 speechBubbleSrc={page.speechBubbleSrc}
+                showAllSpeechBubbles={showAllSpeechBubbles}
               />
             </div>
           ))}
@@ -378,6 +398,7 @@ function Book() {
               src={`${import.meta.env.BASE_URL}Layout/BACK BOOK COVER.png`}
               alt="Back Cover"
               pageNum={pages.length + 1}
+              showAllSpeechBubbles={showAllSpeechBubbles}
             />
           </div>
         </HTMLFlipBook>
