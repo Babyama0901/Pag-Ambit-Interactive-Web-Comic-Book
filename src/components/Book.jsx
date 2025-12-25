@@ -249,25 +249,23 @@ function Book() {
         setIsMobile(mobileCheck);
 
         if (mobileCheck) {
+          // Mobile: Layout for single page
           newWidth = Math.min(clientWidth - 20, 500);
-          newHeight = (newWidth * 1.5);
+          newHeight = (newWidth * 1.414); // A4 roughly, or keep 1.5 ratio
 
-          const availableWidth = Math.min(clientWidth, maxWidth);
-          const availableHeight = Math.min(clientHeight, maxHeight);
-          const targetRatio = 4 / 3;
-          const containerRatio = availableWidth / availableHeight;
-
-          if (containerRatio > targetRatio) {
-            newHeight = availableHeight * 0.9;
-            newWidth = newHeight * targetRatio;
-          } else {
-            newWidth = availableWidth * 0.95;
-            newHeight = newWidth / targetRatio;
+          // Constrain by height if needed
+          if (newHeight > clientHeight - 40) {
+            newHeight = clientHeight - 40;
+            newWidth = newHeight / 1.414;
           }
+
+          setDimensions({ width: Math.floor(newWidth), height: Math.floor(newHeight) });
+
         } else {
+          // Desktop: Layout for 2-page spread
           const availableWidth = Math.min(clientWidth, 1200);
           const availableHeight = Math.min(clientHeight, 900);
-          const targetRatio = 4 / 3;
+          const targetRatio = 4 / 3; // Aspect ratio for the SPREAD (2 pages)
           const containerRatio = availableWidth / availableHeight;
 
           if (containerRatio > targetRatio) {
@@ -277,9 +275,8 @@ function Book() {
             newWidth = availableWidth * 0.85;
             newHeight = newWidth / targetRatio;
           }
+          setDimensions({ width: Math.floor(newWidth / 2), height: Math.floor(newHeight) });
         }
-
-        setDimensions({ width: Math.floor(newWidth / 2), height: Math.floor(newHeight) });
       }
     };
 
@@ -405,17 +402,18 @@ function Book() {
         }}
       >
         <HTMLFlipBook
-          width={450}
-          height={636}
+          width={dimensions.width}
+          height={dimensions.height}
           size="fixed"
-          minWidth={318}
-          maxWidth={595}
-          minHeight={450}
-          maxHeight={842}
+          minWidth={200}
+          maxWidth={1000}
+          minHeight={300}
+          maxHeight={1200}
           maxShadowOpacity={0.5}
           showCover={true}
           mobileScrollSupport={true}
           usePortrait={isMobile}
+          disableFlipByClick={true}
           className="shadow-2xl"
           ref={bookRef}
           onFlip={handleFlip}
