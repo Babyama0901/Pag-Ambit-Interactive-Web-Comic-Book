@@ -28,7 +28,7 @@ const Controls = ({
     onZoomOut
 }) => {
     const [showMoreMenu, setShowMoreMenu] = useState(false);
-    const [showHelp, setShowHelp] = useState(false);
+    const [showHelp, setShowHelp] = useState(true);
 
     // Helper for icons
     const Icon = ({ path, className = "w-5 h-5" }) => (

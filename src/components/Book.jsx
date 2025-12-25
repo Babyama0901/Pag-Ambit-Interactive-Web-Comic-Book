@@ -16,8 +16,8 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, showAllSpeechBubbles })
     >
       {/* Watermark */}
       < div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center opacity-[0.15] select-none" >
-        <div className="text-4xl font-black text-gray-500 transform -rotate-45">
-          PAG-AMBIT COMIC
+        <div className="text-xl font-black text-gray-500 transform -rotate-45 text-center px-4">
+          Property of College of Information and Communications Technology and Team Lykaions
         </div>
       </div >
       <div className={`w-full h-full transition-opacity duration-700 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
@@ -64,7 +64,7 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, showAllSpeechBubbles })
 function Book() {
   const audioRef = useRef(null);
   const bookRef = useRef(null);
-  const [activeDialog, setActiveDialog] = useState(null);
+  const [activeDialog, setActiveDialog] = useState('walkthrough');
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
@@ -572,13 +572,11 @@ function Book() {
         title="Walkthrough Video"
       >
         <div className="aspect-video w-full bg-black rounded-xl overflow-hidden">
-          <video
-            src="https://www.w3schools.com/html/mov_bbb.mp4"
-            controls
-            className="w-full h-full object-cover"
-          >
-            Your browser does not support the video tag.
-          </video>
+          <img
+            src={`${import.meta.env.BASE_URL}walkthrough.webp`}
+            alt="App Walkthrough"
+            className="w-full h-full object-contain"
+          />
         </div>
         <p className="text-white/50 text-sm mt-3 text-center">Watch how to navigate and use features</p>
       </Modal>
