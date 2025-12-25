@@ -13,11 +13,9 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, forceShow, onEnableGlob
 
   const handlePressStart = () => {
     pressTimer.current = setTimeout(() => {
-      if (onEnableGlobal) {
-        onEnableGlobal();
-        // Optional: Add visual feedback here if needed, but the overlay staying on is good feedback
-      }
-    }, 1500);
+      setShowOverlay(true);
+      if (navigator.vibrate) navigator.vibrate(50);
+    }, 500);
   };
 
   const handlePressEnd = () => {
@@ -70,12 +68,13 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, forceShow, onEnableGlob
           onMouseUp={handlePressEnd}
           onTouchStart={handlePressStart}
           onTouchEnd={handlePressEnd}
+          onTouchCancel={handlePressEnd}
           onClick={(e) => {
             e.stopPropagation();
-            setShowOverlay(false);
+            if (showOverlay) setShowOverlay(false);
           }}
           aria-label="Show Dialogue"
-          title="Hover to read, Long Press (1.5s) to keep all open"
+          title="Hover to read, Long Press (0.5s) to view on mobile"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -87,8 +86,12 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, forceShow, onEnableGlob
       {
         !isVideo && speechBubbleSrc && (
           <div
-            className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-500 ease-in-out
+            className={`absolute inset-0 flex items-center justify-center pointer-events-auto transition-all duration-500 ease-in-out
             ${(showOverlay || forceShow) ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowOverlay(false);
+            }}
           >
             <img
               src={`${import.meta.env.BASE_URL}${speechBubbleSrc}`}
@@ -230,6 +233,7 @@ function Book() {
   }, []);
 
   const [dimensions, setDimensions] = useState({ width: 400, height: 600 });
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -241,9 +245,10 @@ function Book() {
 
         const maxWidth = 1000;
         const maxHeight = 800;
-        const isMobile = window.innerWidth < 768;
+        const mobileCheck = window.innerWidth < 768;
+        setIsMobile(mobileCheck);
 
-        if (isMobile) {
+        if (mobileCheck) {
           newWidth = Math.min(clientWidth - 20, 500);
           newHeight = (newWidth * 1.5);
 
@@ -339,8 +344,6 @@ function Book() {
     }
   };
 
-
-
   const toggleFullScreen = async () => {
     try {
       if (!document.fullscreenElement) {
@@ -412,7 +415,7 @@ function Book() {
           maxShadowOpacity={0.5}
           showCover={true}
           mobileScrollSupport={true}
-          usePortrait={false}
+          usePortrait={isMobile}
           className="shadow-2xl"
           ref={bookRef}
           onFlip={handleFlip}
