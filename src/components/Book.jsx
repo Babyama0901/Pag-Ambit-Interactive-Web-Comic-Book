@@ -4,22 +4,36 @@ import Controls from './Controls';
 import Modal from './Modal';
 
 // MediaPage Component (handles both Images and Videos)
-const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, showAllSpeechBubbles }) => {
+// MediaPage Component (handles both Images and Videos)
+const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, forceShow, onEnableGlobal }) => {
   const [showOverlay, setShowOverlay] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const isVideo = src && src.toLowerCase().endsWith('.mp4');
+  const pressTimer = useRef(null);
+
+  const handlePressStart = () => {
+    pressTimer.current = setTimeout(() => {
+      if (onEnableGlobal) {
+        onEnableGlobal();
+        // Optional: Add visual feedback here if needed, but the overlay staying on is good feedback
+      }
+    }, 1500);
+  };
+
+  const handlePressEnd = () => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+    }
+  };
 
   return (
-    <div
-      className="relative w-full h-full group overflow-hidden bg-white flex items-center justify-center p-0 cursor-pointer"
-      onClick={() => setShowOverlay(!showOverlay)}
-    >
+    <div className="relative w-full h-full group overflow-hidden bg-white flex items-center justify-center p-0">
       {/* Watermark */}
-      < div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center opacity-[0.15] select-none" >
+      <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center opacity-[0.15] select-none">
         <div className="text-xl font-black text-gray-500 transform -rotate-45 text-center px-4">
           Property of College of Information and Communications Technology and Team Lykaions
         </div>
-      </div >
+      </div>
       <div className={`w-full h-full transition-opacity duration-700 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
         {isVideo ? (
           <video
@@ -42,12 +56,39 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, showAllSpeechBubbles })
         )}
       </div>
 
-      {/* Speech Bubble Overlay - Only show for images or if requested */}
+      {/* Hover Trigger Button - Center of page */}
+      {!isVideo && speechBubbleSrc && (
+        <button
+          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 w-16 h-16 flex items-center justify-center bg-black/40 backdrop-blur-md rounded-full text-white/80 transition-all duration-300 shadow-2xl hover:scale-110 
+          ${(showOverlay || forceShow) ? 'opacity-0' : 'opacity-100 group-hover:opacity-100'}`}
+          onMouseEnter={() => setShowOverlay(true)}
+          onMouseLeave={() => {
+            setShowOverlay(false);
+            handlePressEnd();
+          }}
+          onMouseDown={handlePressStart}
+          onMouseUp={handlePressEnd}
+          onTouchStart={handlePressStart}
+          onTouchEnd={handlePressEnd}
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowOverlay(false);
+          }}
+          aria-label="Show Dialogue"
+          title="Hover to read, Long Press (1.5s) to keep all open"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+        </button>
+      )}
+
+      {/* Speech Bubble Overlay */}
       {
         !isVideo && speechBubbleSrc && (
           <div
             className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-500 ease-in-out
-            ${(showOverlay || showAllSpeechBubbles) ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+            ${(showOverlay || forceShow) ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
           >
             <img
               src={`${import.meta.env.BASE_URL}${speechBubbleSrc}`}
@@ -57,21 +98,21 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, showAllSpeechBubbles })
           </div>
         )
       }
-    </div >
+    </div>
   );
 };
 
 function Book() {
   const audioRef = useRef(null);
   const bookRef = useRef(null);
-  const [activeDialog, setActiveDialog] = useState('walkthrough');
+  const [activeDialog, setActiveDialog] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isNightMode, setIsNightMode] = useState(false);
   const [zoom, setZoom] = useState(1.0);
-  const [showAllSpeechBubbles, setShowAllSpeechBubbles] = useState(false); // New State
+  const [showReturnPrompt, setShowReturnPrompt] = useState(false);
+  const [showGlobalDialogues, setShowGlobalDialogues] = useState(false);
 
   const pages = [
     { src: 'Layout/FRONT BOOK COVER.png', alt: 'Front Cover' },
@@ -263,6 +304,23 @@ function Book() {
     }
     if (e && typeof e.data === 'number') {
       setCurrentPage(e.data);
+      // Check if last page (using totalPages or just checking index)
+      // Note: react-pageflip uses index, totalPages is usually pages.length + covers
+      // Based on pages array: 
+      // Front Cover (0) + 33 Scenes (multiple pages) + Back Cover
+      // Total pages around 94.
+      // e.data is current spread index or page index depending on mode.
+
+      // If we are at the end (e.data is near totalPages)
+      // Let's use a simpler check: if e.data >= total pages - 2
+
+      // For simple detection, just check if we are at the last index
+      if (bookRef.current && bookRef.current.pageFlip()) {
+        const count = bookRef.current.pageFlip().getPageCount();
+        if (e.data >= count - 1) { // 0-indexed
+          setShowReturnPrompt(true);
+        }
+      }
     }
   };
 
@@ -281,9 +339,7 @@ function Book() {
     }
   };
 
-  const toggleSpeechBubbles = () => {
-    setShowAllSpeechBubbles(!showAllSpeechBubbles);
-  };
+
 
   const toggleFullScreen = async () => {
     try {
@@ -321,11 +377,8 @@ function Book() {
 
   const handleNotes = () => setActiveDialog('notes');
   const handleHighlight = () => setActiveDialog('highlight');
-  const handleSearch = () => setActiveDialog('search');
   const handleShare = () => setActiveDialog('share');
   const handleTableOfContents = () => setActiveDialog('contents');
-  const toggleNightMode = () => setIsNightMode(!isNightMode);
-  const handleWalkthrough = () => setActiveDialog('walkthrough');
 
   const handleZoomChange = (e) => {
     const newValue = parseFloat(e.target.value);
@@ -338,18 +391,7 @@ function Book() {
   return (
     <div className="relative z-10 flex min-h-screen flex-col items-center justify-center py-8">
       {/* Top Toggle Switch */}
-      <div className="mb-6 flex items-center gap-3 bg-black/40 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/10 shadow-xl transition-all hover:bg-black/50">
-        <span className="text-white font-medium text-sm tracking-wide">Show Dialogues</span>
-        <button
-          onClick={toggleSpeechBubbles}
-          className={`relative w-12 h-6 rounded-full transition-colors duration-300 ease-in-out focus:outline-none ${showAllSpeechBubbles ? 'bg-indigo-500' : 'bg-white/20'}`}
-          title="Toggle Dialogues"
-        >
-          <div
-            className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ease-in-out ${showAllSpeechBubbles ? 'translate-x-6' : 'translate-x-0'}`}
-          />
-        </button>
-      </div>
+
 
       <div
         className="transition-transform duration-300 ease-in-out"
@@ -387,7 +429,8 @@ function Book() {
                 alt={`Page ${index + 1}`}
                 pageNum={index + 1}
                 speechBubbleSrc={page.speechBubbleSrc}
-                showAllSpeechBubbles={showAllSpeechBubbles}
+                forceShow={showGlobalDialogues}
+                onEnableGlobal={() => setShowGlobalDialogues(true)}
               />
             </div>
           ))}
@@ -398,7 +441,8 @@ function Book() {
               src={`${import.meta.env.BASE_URL}Layout/BACK BOOK COVER.png`}
               alt="Back Cover"
               pageNum={pages.length + 1}
-              showAllSpeechBubbles={showAllSpeechBubbles}
+              forceShow={showGlobalDialogues}
+              onEnableGlobal={() => setShowGlobalDialogues(true)}
             />
           </div>
         </HTMLFlipBook>
@@ -410,7 +454,6 @@ function Book() {
         totalPages={totalPages}
         isMuted={isMuted}
         isFullscreen={isFullscreen}
-        isNightMode={isNightMode}
         onPrevPage={prevPage}
         onNextPage={nextPage}
         onToggleMute={toggleMute}
@@ -419,10 +462,7 @@ function Book() {
         onShare={handleShare}
         onHighlight={handleHighlight}
         onNotes={handleNotes}
-        onSearch={handleSearch}
         onTableOfContents={handleTableOfContents}
-        onToggleNightMode={toggleNightMode}
-        onWalkthrough={handleWalkthrough}
         onJumpToCover={handleJumpToCover}
         onJumpToEnd={handleJumpToEnd}
         onJumpToPage={handleJumpToPage}
@@ -431,6 +471,42 @@ function Book() {
         onZoomIn={zoomIn}
         onZoomOut={zoomOut}
       />
+
+      {/* Last Page Return Prompt */}
+      <Modal
+        isOpen={showReturnPrompt}
+        onClose={() => setShowReturnPrompt(false)}
+        title="End of Book"
+      >
+        <div className="text-center p-6 space-y-8">
+          <div className="w-24 h-24 mx-auto bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-xl mb-4 animate-bounce">
+            <svg className="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+          </div>
+
+          <h3 className="text-2xl font-bold text-slate-900">You've reached the end!</h3>
+          <p className="text-slate-600 font-medium">Would you like to return to the beginning of the story?</p>
+
+          <div className="flex flex-col gap-3 pt-4">
+            <button
+              onClick={() => {
+                handleJumpToCover();
+                setShowReturnPrompt(false);
+              }}
+              className="w-full py-3 px-6 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition-transform hover:scale-105 active:scale-95 shadow-lg"
+            >
+              Return to Start
+            </button>
+            <button
+              onClick={() => setShowReturnPrompt(false)}
+              className="w-full py-3 px-6 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl font-bold transition-colors"
+            >
+              Stay Here
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Dialogs */}
       <Modal
@@ -566,20 +642,7 @@ function Book() {
         </div>
       </Modal>
 
-      <Modal
-        isOpen={activeDialog === 'walkthrough'}
-        onClose={() => setActiveDialog(null)}
-        title="Walkthrough Video"
-      >
-        <div className="aspect-video w-full bg-black rounded-xl overflow-hidden">
-          <img
-            src={`${import.meta.env.BASE_URL}walkthrough.webp`}
-            alt="App Walkthrough"
-            className="w-full h-full object-contain"
-          />
-        </div>
-        <p className="text-white/50 text-sm mt-3 text-center">Watch how to navigate and use features</p>
-      </Modal>
+
 
       <Modal
         isOpen={activeDialog === 'notes'}
@@ -656,26 +719,6 @@ function Book() {
           </div>
           <p className="text-white/70">Highlighting feature coming soon!</p>
           <p className="text-white/50 text-sm">You'll be able to highlight important text and save your highlights.</p>
-        </div>
-      </Modal>
-
-      <Modal
-        isOpen={activeDialog === 'search'}
-        onClose={() => setActiveDialog(null)}
-        title="Search"
-      >
-        <div className="space-y-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search in book..."
-              className="w-full p-4 pl-12 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-            />
-            <svg className="w-5 h-5 text-white/40 absolute left-4 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-          <p className="text-white/50 text-sm text-center">Search functionality coming soon!</p>
         </div>
       </Modal>
 
