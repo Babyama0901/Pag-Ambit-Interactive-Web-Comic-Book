@@ -252,14 +252,19 @@ function Book() {
 
         if (mobileCheck) {
           // Mobile: Layout for single page
-          // Subtract larger margins (e.g. 48px total width => 24px each side)
-          newWidth = Math.min(clientWidth - 48, 500);
-          newHeight = (newWidth * 1.414); // A4 roughly, or keep 1.5 ratio
+          // Target: 460 x 642
+          const targetMobileWidth = 460;
+          const targetMobileHeight = 642;
+          const mobileRatio = targetMobileHeight / targetMobileWidth;
+
+          // Responsive calculation: Fit within screen minus margin (e.g. 20px) but cap at 460
+          newWidth = Math.min(clientWidth - 20, targetMobileWidth);
+          newHeight = newWidth * mobileRatio;
 
           // Constrain by height if needed
-          if (newHeight > clientHeight - 80) {
-            newHeight = clientHeight - 80;
-            newWidth = newHeight / 1.414;
+          if (newHeight > clientHeight - 40) {
+            newHeight = clientHeight - 40;
+            newWidth = newHeight / mobileRatio;
           }
 
           setDimensions({ width: Math.floor(newWidth), height: Math.floor(newHeight) });
@@ -414,9 +419,8 @@ function Book() {
           maxHeight={1200}
           maxShadowOpacity={0.5}
           showCover={true}
-          mobileScrollSupport={true}
+          mobileScrollSupport={false}
           usePortrait={isMobile}
-          disableFlipByClick={true}
           className="shadow-2xl"
           ref={bookRef}
           onFlip={handleFlip}
