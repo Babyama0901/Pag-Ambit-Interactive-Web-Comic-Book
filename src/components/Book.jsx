@@ -27,10 +27,12 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, forceShow, onEnableGlob
   return (
     <div className="relative w-full h-full group overflow-hidden bg-white flex items-center justify-center p-0">
       {/* Watermark */}
-      <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center opacity-[0.15] select-none">
-        <div className="text-xl font-black text-gray-500 transform -rotate-45 text-center px-4">
-          Property of College of Information and Communications Technology and Team Lykaions
-        </div>
+      <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center select-none">
+        <img
+          src={`${import.meta.env.BASE_URL}Watermark.png`}
+          alt="Watermark"
+          className="w-[80%] h-auto object-contain opacity-20"
+        />
       </div>
       <div className={`w-full h-full transition-opacity duration-700 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
         {isVideo ? (
