@@ -252,12 +252,13 @@ function Book() {
 
         if (mobileCheck) {
           // Mobile: Layout for single page
-          newWidth = Math.min(clientWidth - 20, 500);
+          // Subtract larger margins (e.g. 48px total width => 24px each side)
+          newWidth = Math.min(clientWidth - 48, 500);
           newHeight = (newWidth * 1.414); // A4 roughly, or keep 1.5 ratio
 
           // Constrain by height if needed
-          if (newHeight > clientHeight - 40) {
-            newHeight = clientHeight - 40;
+          if (newHeight > clientHeight - 80) {
+            newHeight = clientHeight - 80;
             newWidth = newHeight / 1.414;
           }
 
