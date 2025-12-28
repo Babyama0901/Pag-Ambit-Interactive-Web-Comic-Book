@@ -247,18 +247,17 @@ function Book() {
 
         const maxWidth = 1000;
         const maxHeight = 800;
-        const mobileCheck = window.innerWidth < 768;
+        const mobileCheck = window.innerWidth < 1100; // Increased to include tablets/iPad Pro
         setIsMobile(mobileCheck);
 
         if (mobileCheck) {
-          // Mobile: Layout for single page
-          // Target: 460 x 642
-          const targetMobileWidth = 460;
-          const targetMobileHeight = 642;
-          const mobileRatio = targetMobileHeight / targetMobileWidth;
+          // Mobile/Tablet: Layout for single page
+          // Target Ratio: roughly 460:642 (~0.716) or A4 ratio
+          const mobileRatio = 642 / 460;
 
-          // Responsive calculation: Fit within screen minus margin (e.g. 20px) but cap at 460
-          newWidth = Math.min(clientWidth - 20, targetMobileWidth);
+          // Responsive calculation: Fit within screen minus margin (e.g. 20px)
+          // Cap at 800px for large tablets to avoid looking too huge
+          newWidth = Math.min(clientWidth - 20, 800);
           newHeight = newWidth * mobileRatio;
 
           // Constrain by height if needed
