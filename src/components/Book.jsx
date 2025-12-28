@@ -7,13 +7,18 @@ import Modal from './Modal';
 // MediaPage Component (handles both Images and Videos)
 const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, forceShow, onEnableGlobal }) => {
   const [showOverlay, setShowOverlay] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const isVideo = src && src.toLowerCase().endsWith('.mp4');
   const pressTimer = useRef(null);
+  const longPressTriggered = useRef(false);
 
   const handlePressStart = () => {
+    longPressTriggered.current = false;
     pressTimer.current = setTimeout(() => {
       setShowOverlay(true);
+      setIsLocked(true); // Lock it
+      longPressTriggered.current = true;
       if (navigator.vibrate) navigator.vibrate(50);
     }, 500);
   };
@@ -21,6 +26,41 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, forceShow, onEnableGlob
   const handlePressEnd = () => {
     if (pressTimer.current) {
       clearTimeout(pressTimer.current);
+    }
+  };
+
+  const handleButtonClick = (e) => {
+    e.stopPropagation();
+    // If long press occurred, ignore click (it's already handled)
+    if (longPressTriggered.current) {
+      longPressTriggered.current = false;
+      return;
+    }
+
+    // Tap Logic: Toggle
+    if (showOverlay) {
+      // If locked, do we unlock and hide? Or just hide?
+      // "long press to stay visible until user refresh" -> Maybe tap shouldn't hide it if locked?
+      // But usually user wants a way to dismiss.
+      // I will assume Tap always toggles visibility regardless of lock state for simplicity, 
+      // OR enforcing lock means tap DOES NOT hide.
+      // User said "until the user refresh it". This implies strong persistence.
+      // I will make it so if locked, Tap does nothing (or shows a hint?).
+      // Actually, if I can't hide it, it blocks the view.
+      // But maybe that's what they want.
+      // I'll implement: Tap toggles visibility. Long press sets "Locked" which just ensures it opens.
+      // Actually, "auto reveal and hide when tap" -> Toggle.
+      // "Long press to stay visible" -> Implies normal tap might auto-hide or something?
+      // I will implement: 
+      // Tap -> Toggle.
+      // Long Press -> Show + Lock (Tap won't hide it? No, that's bad UX).
+      // Maybe "stay visible" means it doesn't hide when mouse leaves? (But this is mobile).
+      // I'll stick to: Long press sets it to visible. Tap toggles it.
+      // If locked, maybe tapping overlay doesn't dismiss it?
+      // Let's make Long Press set it visible.
+      setShowOverlay(!showOverlay);
+    } else {
+      setShowOverlay(true);
     }
   };
 
@@ -63,18 +103,17 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, forceShow, onEnableGlob
           ${(showOverlay || forceShow) ? 'opacity-0' : 'opacity-100 group-hover:opacity-100'}`}
           onMouseEnter={() => setShowOverlay(true)}
           onMouseLeave={() => {
-            setShowOverlay(false);
-            handlePressEnd();
+            if (!isLocked) {
+              setShowOverlay(false);
+              handlePressEnd();
+            }
           }}
           onMouseDown={handlePressStart}
           onMouseUp={handlePressEnd}
           onTouchStart={handlePressStart}
           onTouchEnd={handlePressEnd}
           onTouchCancel={handlePressEnd}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (showOverlay) setShowOverlay(false);
-          }}
+          onClick={handleButtonClick}
           aria-label="Show Dialogue"
           title="Hover to read, Long Press (0.5s) to view on mobile"
         >
@@ -92,7 +131,11 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, forceShow, onEnableGlob
             ${(showOverlay || forceShow) ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
             onClick={(e) => {
               e.stopPropagation();
-              setShowOverlay(false);
+              // If locked, do not hide on tap?
+              // "until the user refresh it"
+              if (!isLocked) {
+                setShowOverlay(false);
+              }
             }}
           >
             <img
