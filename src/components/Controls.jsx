@@ -17,7 +17,9 @@ const Controls = ({
     zoom = 1,
     onZoomChange,
     onZoomIn,
-    onZoomOut
+    onZoomOut,
+    onToggleMobile,
+    isMobileView
 }) => {
     const [showMoreMenu, setShowMoreMenu] = useState(false);
     const [showHelp, setShowHelp] = useState(true);
@@ -190,6 +192,13 @@ const Controls = ({
                                     active={!isMuted}
                                     className={!isMuted ? "bg-indigo-500/20 text-indigo-300 shadow-[0_0_10px_rgba(99,102,241,0.3)] hover:bg-indigo-500/30" : "text-white/40 hover:text-white"}
                                     label={isMuted ? "Unmute" : "Mute"}
+                                />
+                                <ControlButton
+                                    onClick={onToggleMobile}
+                                    icon="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
+                                    active={isMobileView}
+                                    className={isMobileView ? "bg-indigo-500/20 text-indigo-300" : ""}
+                                    label={isMobileView ? "Spread View" : "Single Page"}
                                 />
                                 <ControlButton
                                     onClick={onToggleFullscreen}

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import Controls from './Controls';
 import Modal from './Modal';
@@ -235,62 +235,62 @@ function Book() {
   }, []);
 
   const [dimensions, setDimensions] = useState({ width: 400, height: 600 });
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1100);
+  const [forceMobile, setForceMobile] = useState(false);
   const containerRef = useRef(null);
 
-  useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        const { clientWidth, clientHeight } = containerRef.current;
-        let newWidth = clientWidth;
-        let newHeight = clientHeight;
+  const updateDimensions = useCallback(() => {
+    if (containerRef.current) {
+      const { clientWidth, clientHeight } = containerRef.current;
+      let newWidth = clientWidth;
+      let newHeight = clientHeight;
 
-        const maxWidth = 1000;
-        const maxHeight = 800;
-        const mobileCheck = window.innerWidth < 1100; // Increased to include tablets/iPad Pro
-        setIsMobile(mobileCheck);
+      // Check if mobile (screen size OR forced toggle)
+      const mobileCheck = window.innerWidth < 1100 || forceMobile;
+      setIsMobile(mobileCheck);
 
-        if (mobileCheck) {
-          // Mobile/Tablet: Layout for single page
-          // Target Ratio: roughly 460:642 (~0.716) or A4 ratio
-          const mobileRatio = 642 / 460;
+      if (mobileCheck) {
+        // Mobile/Tablet: Layout for single page
+        // Target Ratio: roughly 460:642 (~0.716) or A4 ratio
+        const mobileRatio = 642 / 460;
 
-          // Responsive calculation: Fit within screen minus margin (e.g. 20px)
-          // Cap at 800px for large tablets to avoid looking too huge
-          newWidth = Math.min(clientWidth - 20, 800);
-          newHeight = newWidth * mobileRatio;
+        // Responsive calculation: Fit within screen minus margin (e.g. 20px)
+        // Cap at 800px for large tablets to avoid looking too huge
+        newWidth = Math.min(clientWidth - 20, 800);
+        newHeight = newWidth * mobileRatio;
 
-          // Constrain by height if needed
-          if (newHeight > clientHeight - 40) {
-            newHeight = clientHeight - 40;
-            newWidth = newHeight / mobileRatio;
-          }
-
-          setDimensions({ width: Math.floor(newWidth), height: Math.floor(newHeight) });
-
-        } else {
-          // Desktop: Layout for 2-page spread
-          const availableWidth = Math.min(clientWidth, 1200);
-          const availableHeight = Math.min(clientHeight, 900);
-          const targetRatio = 4 / 3; // Aspect ratio for the SPREAD (2 pages)
-          const containerRatio = availableWidth / availableHeight;
-
-          if (containerRatio > targetRatio) {
-            newHeight = availableHeight * 0.85;
-            newWidth = newHeight * targetRatio;
-          } else {
-            newWidth = availableWidth * 0.85;
-            newHeight = newWidth / targetRatio;
-          }
-          setDimensions({ width: Math.floor(newWidth / 2), height: Math.floor(newHeight) });
+        // Constrain by height if needed
+        if (newHeight > clientHeight - 40) {
+          newHeight = clientHeight - 40;
+          newWidth = newHeight / mobileRatio;
         }
-      }
-    };
 
+        setDimensions({ width: Math.floor(newWidth), height: Math.floor(newHeight) });
+
+      } else {
+        // Desktop: Layout for 2-page spread
+        const availableWidth = Math.min(clientWidth, 1200);
+        const availableHeight = Math.min(clientHeight, 900);
+        const targetRatio = 4 / 3; // Aspect ratio for the SPREAD (2 pages)
+        const containerRatio = availableWidth / availableHeight;
+
+        if (containerRatio > targetRatio) {
+          newHeight = availableHeight * 0.85;
+          newWidth = newHeight * targetRatio;
+        } else {
+          newWidth = availableWidth * 0.85;
+          newHeight = newWidth / targetRatio;
+        }
+        setDimensions({ width: Math.floor(newWidth / 2), height: Math.floor(newHeight) });
+      }
+    }
+  }, [forceMobile]); // Re-run when forceMobile changes
+
+  useEffect(() => {
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
-  }, []);
+  }, [updateDimensions]);
 
   // Keyboard navigation for page flipping
   useEffect(() => {
@@ -477,6 +477,8 @@ function Book() {
         onZoomChange={handleZoomChange}
         onZoomIn={zoomIn}
         onZoomOut={zoomOut}
+        onToggleMobile={() => setForceMobile(!forceMobile)}
+        isMobileView={isMobile}
       />
 
       {/* Last Page Return Prompt */}
