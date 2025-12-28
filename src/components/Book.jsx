@@ -251,12 +251,14 @@ function Book() {
 
       if (mobileCheck) {
         // Mobile/Tablet: Layout for single page
-        // Target Ratio: roughly 460:642 (~0.716) or A4 ratio
-        const mobileRatio = 642 / 460;
+        // Default Dimensions: 425 x 642
+        const targetWidth = 425;
+        const targetHeight = 642;
+        const mobileRatio = targetHeight / targetWidth;
 
         // Responsive calculation: Fit within screen minus margin (e.g. 20px)
-        // Cap at 800px for large tablets to avoid looking too huge
-        newWidth = Math.min(clientWidth - 20, 800);
+        // Cap at targetWidth (425) for default mobile sizing
+        newWidth = Math.min(clientWidth - 20, targetWidth);
         newHeight = newWidth * mobileRatio;
 
         // Constrain by height if needed
