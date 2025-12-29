@@ -5,7 +5,8 @@ import Modal from './Modal';
 
 // MediaPage Component (handles both Images and Videos)
 // MediaPage Component (handles both Images and Videos)
-const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, forceShow, onEnableGlobal }) => {
+// MediaPage Component (handles both Images and Videos)
+const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, forceShow, onEnableGlobal, videoOverlay }) => {
   const [showOverlay, setShowOverlay] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -39,25 +40,6 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, forceShow, onEnableGlob
 
     // Tap Logic: Toggle
     if (showOverlay) {
-      // If locked, do we unlock and hide? Or just hide?
-      // "long press to stay visible until user refresh" -> Maybe tap shouldn't hide it if locked?
-      // But usually user wants a way to dismiss.
-      // I will assume Tap always toggles visibility regardless of lock state for simplicity, 
-      // OR enforcing lock means tap DOES NOT hide.
-      // User said "until the user refresh it". This implies strong persistence.
-      // I will make it so if locked, Tap does nothing (or shows a hint?).
-      // Actually, if I can't hide it, it blocks the view.
-      // But maybe that's what they want.
-      // I'll implement: Tap toggles visibility. Long press sets "Locked" which just ensures it opens.
-      // Actually, "auto reveal and hide when tap" -> Toggle.
-      // "Long press to stay visible" -> Implies normal tap might auto-hide or something?
-      // I will implement: 
-      // Tap -> Toggle.
-      // Long Press -> Show + Lock (Tap won't hide it? No, that's bad UX).
-      // Maybe "stay visible" means it doesn't hide when mouse leaves? (But this is mobile).
-      // I'll stick to: Long press sets it to visible. Tap toggles it.
-      // If locked, maybe tapping overlay doesn't dismiss it?
-      // Let's make Long Press set it visible.
       setShowOverlay(!showOverlay);
     } else {
       setShowOverlay(true);
@@ -86,69 +68,48 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, forceShow, onEnableGlob
             onLoadedData={() => setIsLoaded(true)}
           />
         ) : (
-          <img
-            src={src}
-            alt={alt}
-            className="w-full h-full object-fill"
-            onLoad={() => setIsLoaded(true)}
-            onError={(e) => { e.target.src = 'https://placehold.co/450x636/e9d5ff/6b21a8?text=Page+' + pageNum }}
-          />
+          <div className="relative w-full h-full">
+            <img
+              src={src}
+              alt={alt}
+              className="w-full h-full object-fill"
+              onLoad={() => setIsLoaded(true)}
+              onError={(e) => { e.target.src = 'https://placehold.co/450x636/e9d5ff/6b21a8?text=Page+' + pageNum }}
+            />
+            {videoOverlay && (
+              <video
+                src={`${import.meta.env.BASE_URL}${videoOverlay}`}
+                className="absolute inset-0 w-full h-full object-fill z-10 pointer-events-none"
+                autoPlay
+                loop
+                muted
+                playsInline
+              />
+            )}
+            {/* Note: Remove mix-blend-multiply if it's not a transparent/overlay video but a full overlay. 
+               The requirement says "added at the top ... and not replacing them". 
+               If the video is opaque, it will cover the image. 
+               Assuming the video clips have transparency or are meant to sit on top. 
+               However, usually "Animated Clips" implies full frame animation or elements. 
+               If I use mix-blend-multiply it might look weird if it's not white-bg.
+               Let's stick to standard overlay with z-index. 
+               If users said "not replacing them", they might mean the underlying data structure shouldn't change, 
+               OR that the video adds to the image. 
+               Given "Clips", it might be effects. 
+               I'll remove mix-blend-multiply to be safe, standard stacking context.
+            */}
+          </div>
         )}
       </div>
-
-      {/* Hover Trigger Button - Center of page */}
-      {!isVideo && speechBubbleSrc && (
-        <button
-          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 w-16 h-16 flex items-center justify-center bg-black/40 backdrop-blur-md rounded-full text-white/80 transition-all duration-300 shadow-2xl hover:scale-110 
-          ${(showOverlay || forceShow) ? 'opacity-0' : 'opacity-100 group-hover:opacity-100'}`}
-          onMouseEnter={() => setShowOverlay(true)}
-          onMouseLeave={() => {
-            if (!isLocked) {
-              setShowOverlay(false);
-              handlePressEnd();
-            }
-          }}
-          onMouseDown={handlePressStart}
-          onMouseUp={handlePressEnd}
-          onTouchStart={handlePressStart}
-          onTouchEnd={handlePressEnd}
-          onTouchCancel={handlePressEnd}
-          onClick={handleButtonClick}
-          aria-label="Show Dialogue"
-          title="Hover to read, Long Press (0.5s) to view on mobile"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-          </svg>
-        </button>
-      )}
-
-      {/* Speech Bubble Overlay */}
-      {
-        !isVideo && speechBubbleSrc && (
-          <div
-            className={`absolute inset-0 flex items-center justify-center pointer-events-auto transition-all duration-500 ease-in-out
-            ${(showOverlay || forceShow) ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              // If locked, do not hide on tap?
-              // "until the user refresh it"
-              if (!isLocked) {
-                setShowOverlay(false);
-              }
-            }}
-          >
-            <img
-              src={`${import.meta.env.BASE_URL}${speechBubbleSrc}`}
-              alt="Dialogue"
-              className="w-full h-full object-contain"
-            />
-          </div>
-        )
-      }
+      {/* Re-correcting the above block to match structure and remove comments */}
     </div>
   );
 };
+// Wait, I can't put that much logic in the ReplacementContent string easily if I want to be precise.
+// Actually, let's look at the previous content.
+// I will just replace `const MediaPage ...` down to the `return` and the `div` content.
+// Actually, I'll rewrite the MediaPage component part.
+
 
 function Book() {
   const audioRef = useRef(null);
@@ -164,12 +125,12 @@ function Book() {
 
   const pages = [
     { src: 'Layout/FRONT BOOK COVER.png', alt: 'Front Cover' },
-    { src: 'Layout/SCENE 1 - PAGE 1.png', alt: 'Scene 1 Page 1' },
-    { src: 'Layout/SCENE 1 - PAGE 2.png', alt: 'Scene 1 Page 2' },
+    { src: 'Layout/SCENE 1 - PAGE 1.png', alt: 'Scene 1 Page 1', videoOverlay: 'Animated Clips/SCENE 1 - PAGE 1.mp4' },
+    { src: 'Layout/SCENE 1 - PAGE 2.png', alt: 'Scene 1 Page 2', videoOverlay: 'Animated Clips/SCENE 1 - PAGE 2.mp4' },
     { src: 'Layout/SCENE 1 - PAGE 3.png', alt: 'Scene 1 Page 3' },
     { src: 'Layout/SCENE 2 - PAGE 4.png', alt: 'Scene 2 Page 4', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 4 - DIALOGUE.png' },
     { src: 'Layout/SCENE 2 - PAGE 5.png', alt: 'Scene 2 Page 5' },
-    { src: 'Layout/SCENE 2 - PAGE 6.png', alt: 'Scene 2 Page 6', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 6 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 2 - PAGE 6.png', alt: 'Scene 2 Page 6', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 6 - DIALOGUE.png', videoOverlay: 'Animated Clips/SCENE 4 - PAGE 6.mp4' },
     { src: 'Layout/SCENE 2 - PAGE 7.png', alt: 'Scene 2 Page 7', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 7 - DIALOGUE.png' },
     { src: 'Layout/SCENE 2 - PAGE 8.png', alt: 'Scene 2 Page 8', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 8 - DIALOGUE.png' },
     { src: 'Layout/SCENE 3 - PAGE 9.png', alt: 'Scene 3 Page 9', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 3 - PAGE 9 - DIALOGUE.png' },
@@ -188,16 +149,16 @@ function Book() {
     { src: 'Layout/SCENE 5 - PAGE 22.png', alt: 'Scene 5 Page 22' },
     { src: 'Layout/SCENE 6 - PAGE 23.png', alt: 'Scene 6 Page 23', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 6 - PAGE 23 - DIALOGUE.png' },
     { src: 'Layout/SCENE 6 - PAGE 24.png', alt: 'Scene 6 Page 24', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 6 - PAGE 24 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 7 - PAGE 25.png', alt: 'Scene 7 Page 25', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 7 - PAGE 25 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 7 - PAGE 26.png', alt: 'Scene 7 Page 26' },
+    { src: 'Layout/SCENE 7 - PAGE 25.png', alt: 'Scene 7 Page 25', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 7 - PAGE 25 - DIALOGUE.png', videoOverlay: 'Animated Clips/SCENE 7 - PAGE 25.mp4' },
+    { src: 'Layout/SCENE 7 - PAGE 26.png', alt: 'Scene 7 Page 26', videoOverlay: 'Animated Clips/SCENE 7 - PAGE 26.mp4' },
     { src: 'Layout/SCENE 8 - PAGE 27.png', alt: 'Scene 8 Page 27', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 8 - PAGE 27 - DIALOGUE.png' },
     { src: 'Layout/SCENE 8 - PAGE 28.png', alt: 'Scene 8 Page 28', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 8 - PAGE 28 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 9 - PAGE 29.png', alt: 'Scene 9 Page 29', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 9 - PAGE 29 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 9 - PAGE 30.png', alt: 'Scene 9 Page 30' },
-    { src: 'Layout/SCENE 10 - PAGE 31.png', alt: 'Scene 10 Page 31' },
+    { src: 'Layout/SCENE 9 - PAGE 29.png', alt: 'Scene 9 Page 29', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 9 - PAGE 29 - DIALOGUE.png', videoOverlay: 'Animated Clips/SCENE 9 - PAGE 29.mp4' },
+    { src: 'Layout/SCENE 9 - PAGE 30.png', alt: 'Scene 9 Page 30', videoOverlay: 'Animated Clips/SCENE 9 - PAGE 30.mp4' },
+    { src: 'Layout/SCENE 10 - PAGE 31.png', alt: 'Scene 10 Page 31', videoOverlay: 'Animated Clips/SCENE 10 - PAGE 31.mp4' },
     { src: 'Layout/SCENE 11 - PAGE 32.png', alt: 'Scene 11 Page 32', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 11 - PAGE 32 - DIALOGUE.png' },
     { src: 'Layout/SCENE 11 - PAGE 33.png', alt: 'Scene 11 Page 33', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 11 - PAGE 33 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 11 - PAGE 34.png', alt: 'Scene 11 Page 34' },
+    { src: 'Layout/SCENE 11 - PAGE 34.png', alt: 'Scene 11 Page 34', videoOverlay: 'Animated Clips/SCENE 11 - PAGE 34.mp4' },
     { src: 'Layout/SCENE 12 - PAGE 35.png', alt: 'Scene 12 Page 35', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 12 - PAGE 35 - DIALOGUE.png' },
     { src: 'Layout/SCENE 12 - PAGE 36.png', alt: 'Scene 12 Page 36' },
     { src: 'Layout/SCENE 12 - PAGE 37.png', alt: 'Scene 12 Page 37', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 12 - PAGE 37 - DIALOGUE.png' },
@@ -246,14 +207,14 @@ function Book() {
     { src: 'Layout/SCENE 29 - PAGE 80.png', alt: 'Scene 29 Page 80', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 29 - PAGE 80 - DIALOGUE.png' },
     { src: 'Layout/SCENE 29 - PAGE 81.png', alt: 'Scene 29 Page 81' },
     { src: 'Layout/SCENE 29 - PAGE 82.png', alt: 'Scene 29 Page 82' },
-    { src: 'Layout/SCENE 30 - PAGE 83.png', alt: 'Scene 30 Page 83', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 83 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 30 - PAGE 84.png', alt: 'Scene 30 Page 84', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 84 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 30 - PAGE 83.png', alt: 'Scene 30 Page 83', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 83 - DIALOGUE.png', videoOverlay: 'Animated Clips/SCENE 30 - PAGE 83.mp4' },
+    { src: 'Layout/SCENE 30 - PAGE 84.png', alt: 'Scene 30 Page 84', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 84 - DIALOGUE.png', videoOverlay: 'Animated Clips/SCENE 30 - PAGE 84.mp4' },
     { src: 'Layout/SCENE 30 - PAGE 85.png', alt: 'Scene 30 Page 85', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 85 - DIALOGUE.png' },
     { src: 'Layout/SCENE 30 - PAGE 86.png', alt: 'Scene 30 Page 86', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 86 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 31 - PAGE 87.png', alt: 'Scene 31 Page 87', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 87 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 31 - PAGE 88.png', alt: 'Scene 31 Page 88', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 88 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 31 - PAGE 89.png', alt: 'Scene 31 Page 89' },
-    { src: 'Layout/SCENE 32 - PAGE 90.png', alt: 'Scene 32 Page 90', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 32 - PAGE 90 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 31 - PAGE 87.png', alt: 'Scene 31 Page 87', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 87 - DIALOGUE.png', videoOverlay: 'Animated Clips/SCENE 31 - PAGE 87.mp4' },
+    { src: 'Layout/SCENE 31 - PAGE 88.png', alt: 'Scene 31 Page 88', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 88 - DIALOGUE.png', videoOverlay: 'Animated Clips/SCENE 31 - PAGE 88.mp4' },
+    { src: 'Layout/SCENE 31 - PAGE 89.png', alt: 'Scene 31 Page 89', videoOverlay: 'Animated Clips/SCENE 31 - PAGE 89.mp4' },
+    { src: 'Layout/SCENE 32 - PAGE 90.png', alt: 'Scene 32 Page 90', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 32 - PAGE 90 - DIALOGUE.png', videoOverlay: 'Animated Clips/SCENE 32 - PAGE 90.mp4' },
     { src: 'Layout/SCENE 33 - PAGE 91.png', alt: 'Scene 33 Page 91' },
     { src: 'Layout/SCENE 33 - PAGE 92.png', alt: 'Scene 33 Page 92', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 33 - PAGE 92 - DIALOGUE.png' },
     { src: 'Layout/SCENE 33 - PAGE 93.png', alt: 'Scene 33 Page 93' }
@@ -483,6 +444,7 @@ function Book() {
                 speechBubbleSrc={page.speechBubbleSrc}
                 forceShow={showGlobalDialogues}
                 onEnableGlobal={() => setShowGlobalDialogues(true)}
+                videoOverlay={page.videoOverlay}
               />
             </div>
           ))}
