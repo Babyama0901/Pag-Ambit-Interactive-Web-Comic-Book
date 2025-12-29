@@ -146,7 +146,6 @@ function Book() {
   const [isNightMode, setIsNightMode] = useState(false);
 
   const pages = [
-    { type: 'blank' },
     { src: 'Layout/SCENE 1 - PAGE 1.png', alt: 'Scene 1 Page 1' },
     { src: 'Layout/SCENE 1 - PAGE 2.png', alt: 'Scene 1 Page 2' },
     { src: 'Layout/SCENE 1 - PAGE 3.png', alt: 'Scene 1 Page 3', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 11 - PAGE 32 - DIALOGUE.png' },
