@@ -13,7 +13,8 @@
   },
   {
     "src": "Layout/SCENE 1 - PAGE 3.png",
-    "alt": "Scene 1 Page 3"
+    "alt": "Scene 1 Page 3",
+    "speechBubbleSrc": "Speech Bubbles Dialogues/SCENE 11 - PAGE 32 - DIALOGUE.png"
   },
   {
     "src": "Layout/SCENE 2 - PAGE 4.png",
@@ -22,7 +23,8 @@
   },
   {
     "src": "Layout/SCENE 2 - PAGE 5.png",
-    "alt": "Scene 2 Page 5"
+    "alt": "Scene 2 Page 5",
+    "speechBubbleSrc": "Speech Bubbles Dialogues/SCENE 20 - PAGE 53 - DIALOGUE.png"
   },
   {
     "src": "Layout/SCENE 2 - PAGE 6.png",
@@ -214,7 +216,8 @@
   },
   {
     "src": "Layout/SCENE 17 - PAGE 48.png",
-    "alt": "Scene 17 Page 48"
+    "alt": "Scene 17 Page 48",
+    "speechBubbleSrc": "Speech Bubbles Dialogues/SCENE 17 - PAGE 48 - DIAGLOGUE.png"
   },
   {
     "src": "Layout/SCENE 18 - PAGE 49.png",
@@ -222,7 +225,8 @@
   },
   {
     "src": "Layout/SCENE 18 - PAGE 50.png",
-    "alt": "Scene 18 Page 50"
+    "alt": "Scene 18 Page 50",
+    "speechBubbleSrc": "Speech Bubbles Dialogues/SCENE 18 - PAGE 50 - DIAGLOGUE.png"
   },
   {
     "src": "Layout/SCENE 18 - PAGE 51.png",
