@@ -48,7 +48,7 @@ const MediaPage = ({ src, alt, pageNum, speechBubbleSrc, forceShow, onEnableGlob
   };
 
   return (
-    <div className="relative w-full h-full group overflow-visible bg-white flex items-center justify-center p-0">
+    <div className="relative w-full h-full group overflow-hidden bg-white flex items-center justify-center p-0">
       {/* Watermark */}
       <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center select-none">
         <img
@@ -142,14 +142,14 @@ function Book() {
       src: 'Layout/SCENE 1 - PAGE 1.png',
       alt: 'Scene 1 Page 1',
       animatedClips: [
-        { src: 'Animated Clips/SCENE 1 - PAGE 1.mp4', width: 1035, height: 547, x: -519, y: 140, sound: 'Sound Effects/Digital Alarm Clock Sound.mp3' }
+        { src: 'Animated Clips/SCENE 1 - PAGE 1.mp4', width: 595, height: 842, x: 16, y: 20, sound: 'Sound Effects/Digital Alarm Clock Sound.mp3' }
       ]
     },
     {
       src: 'Layout/SCENE 1 - PAGE 2.png',
       alt: 'Scene 1 Page 2',
       animatedClips: [
-        { src: 'Animated Clips/SCENE 1 - PAGE 2.mp4', width: 1035, height: 547, x: -519, y: 140, sound: 'Sound Effects/Digital Alarm Clock Sound.mp3' }
+        { src: 'Animated Clips/SCENE 1 - PAGE 2.mp4', width: 595, height: 842, x: 650, y: 20, sound: 'Sound Effects/Digital Alarm Clock Sound.mp3' }
       ]
     },
     { src: 'Layout/SCENE 1 - PAGE 3.png', alt: 'Scene 1 Page 3' },
@@ -201,7 +201,7 @@ function Book() {
       alt: 'Scene 9 Page 29',
       speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 9 - PAGE 29 - DIALOGUE.png',
       animatedClips: [
-        { src: 'Animated Clips/SCENE 9 - PAGE 29.mp4', width: 525, height: 300, x: 2, y: 60, sound: 'Sound Effects/Girl Crying sound effect.mp3' }
+        { src: 'Animated Clips/SCENE 9 - PAGE 29.mp4', width: 525, height: 300, x: 35, y: 130, sound: 'Sound Effects/Girl Crying sound effect.mp3' }
       ]
     },
     {
