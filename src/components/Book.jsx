@@ -4,7 +4,7 @@ import Controls from './Controls';
 import Modal from './Modal';
 import { MessageCircle } from 'lucide-react';
 
-// Custom Hook for Long Press
+// Custom Hook for Long Press (Kept for potential future use, though not used for locking now)
 const useLongPress = (callback = () => { }, ms = 500) => {
   const [startLongPress, setStartLongPress] = useState(false);
 
@@ -31,28 +31,42 @@ const useLongPress = (callback = () => { }, ms = 500) => {
 };
 
 // MediaPage Component (handles both Images and Videos)
-const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbleSrc }) => {
+const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbleSrc, setStatusMessage, setIsInteracting }) => {
   const [showOverlay, setShowOverlay] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
-  const [statusMessage, setStatusMessage] = useState(null);
   const isVideo = src && src.toLowerCase().endsWith('.mp4');
 
-  const handleLongPress = useCallback(() => {
-    setIsLocked(false);
-    setShowOverlay(false);
-    setStatusMessage("Speech bubble hidden");
-    setTimeout(() => setStatusMessage(null), 2000);
-  }, []);
+  // Drag Logic State
+  const dragStartX = useRef(null);
 
-  const longPressEvent = useLongPress(handleLongPress, 500);
+  const handleDragStart = (clientX) => {
+    dragStartX.current = clientX;
+    setIsInteracting(true); // Disable navigation
+  };
 
-  const handleInteractionClick = () => {
-    if (!isLocked) {
-      setIsLocked(true);
-      setShowOverlay(true);
-      setStatusMessage("Speech bubble locked visible");
-      setTimeout(() => setStatusMessage(null), 2000);
+  const handleDragEnd = (clientX) => {
+    setIsInteracting(false); // Enable navigation
+    if (dragStartX.current !== null) {
+      const deltaX = clientX - dragStartX.current;
+      // Dragging left (negative delta) by at least 30px
+      if (deltaX < -30 && !isLocked) {
+        setIsLocked(true);
+        setShowOverlay(true);
+        setStatusMessage("Speech bubble locked visible");
+      }
+      dragStartX.current = null;
     }
+  };
+
+  const handleTouchStart = (e) => handleDragStart(e.touches[0].clientX);
+  const handleTouchEnd = (e) => handleDragEnd(e.changedTouches[0].clientX);
+  const handleMouseDown = (e) => {
+    e.stopPropagation(); // Stop click from bubbling to book flip
+    handleDragStart(e.clientX);
+  };
+  const handleMouseUp = (e) => {
+    e.stopPropagation();
+    handleDragEnd(e.clientX);
   };
 
   const handleMouseEnter = () => {
@@ -92,13 +106,19 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
 
       {/* Interaction Button - Only show if there's a bubble */}
       {!isVideo && (hasSpeechBubble || speechBubbleSrc) && (
-        <div className="absolute top-4 right-4 z-30">
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30"
+          onClick={(e) => e.stopPropagation()} // Prevent click from flipping page
+        >
           <button
-            {...longPressEvent}
-            onClick={handleInteractionClick}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            className={`p-3 rounded-full shadow-lg transition-all duration-300 ${isLocked ? 'bg-purple-600 text-white animate-pulse' : 'bg-white/80 text-purple-600 hover:bg-white hover:scale-110'}`}
+            className={`p-3 rounded-full shadow-lg transition-all duration-300 ${isLocked ? 'bg-purple-600 text-white animate-pulse' : 'bg-white/80 text-purple-600 hover:bg-white hover:scale-110 cursor-grab active:cursor-grabbing'}`}
+            title="Drag left to lock"
           >
             <MessageCircle size={24} fill={isLocked ? "currentColor" : "none"} />
           </button>
@@ -124,13 +144,6 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
           )}
         </div>
       )}
-
-      {/* Status Message Toast */}
-      {statusMessage && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm z-50 animate-in fade-in slide-in-from-bottom-2">
-          {statusMessage}
-        </div>
-      )}
     </div>
   );
 };
@@ -145,12 +158,26 @@ function Book() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isNightMode, setIsNightMode] = useState(false);
 
+  // Lifted state for status message
+  const [statusMessage, setStatusMessage] = useState(null);
+
+  // State to track if user is interacting with the button (to disable page flip)
+  const [isInteracting, setIsInteracting] = useState(false);
+
+  // Auto-hide status message after 3 seconds
+  useEffect(() => {
+    if (statusMessage) {
+      const timer = setTimeout(() => setStatusMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [statusMessage]);
+
   const pages = [
     { src: 'Layout/SCENE 1 - PAGE 1.png', alt: 'Scene 1 Page 1' },
     { src: 'Layout/SCENE 1 - PAGE 2.png', alt: 'Scene 1 Page 2' },
-    { src: 'Layout/SCENE 1 - PAGE 3.png', alt: 'Scene 1 Page 3', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 11 - PAGE 32 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 1 - PAGE 3.png', alt: 'Scene 1 Page 3' },
     { src: 'Layout/SCENE 2 - PAGE 4.png', alt: 'Scene 2 Page 4', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 4 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 2 - PAGE 5.png', alt: 'Scene 2 Page 5', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 20 - PAGE 53 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 2 - PAGE 5.png', alt: 'Scene 2 Page 5' },
     { src: 'Layout/SCENE 2 - PAGE 6.png', alt: 'Scene 2 Page 6', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 6 - DIALOGUE.png' },
     { src: 'Layout/SCENE 2 - PAGE 7.png', alt: 'Scene 2 Page 7', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 7 - DIALOGUE.png' },
     { src: 'Layout/SCENE 2 - PAGE 8.png', alt: 'Scene 2 Page 8', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 8 - DIALOGUE.png' },
@@ -204,7 +231,7 @@ function Book() {
     { src: 'Layout/SCENE 21 - PAGE 56.png', alt: 'Scene 21 Page 56' },
     { src: 'Layout/SCENE 21 - PAGE 57.png', alt: 'Scene 21 Page 57', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 21 - PAGE 57 - DIALOGUE.png' },
     { src: 'Layout/SCENE 21 - PAGE 58.png', alt: 'Scene 21 Page 58' },
-    { src: 'Layout/SCENE 22 - PAGE 59.png', alt: 'Scene 22 Page 59', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 22 - PAGE 59 - DIALOGUE-1.png' },
+    { src: 'Layout/SCENE 22 - PAGE 59.png', alt: 'Scene 22 Page 59', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 22 - PAGE 59 - DIALOGUE.png' },
     { src: 'Layout/SCENE 22 - PAGE 60.png', alt: 'Scene 22 Page 60' },
     { src: 'Layout/SCENE 22 - PAGE 61.png', alt: 'Scene 22 Page 61', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 22 - PAGE 61 - DIALOGUE.png' },
     { src: 'Layout/SCENE 23 - PAGE 62.png', alt: 'Scene 23 Page 62', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 23 - PAGE 62 - DIALOGUE.png' },
@@ -224,20 +251,20 @@ function Book() {
     { src: 'Layout/SCENE 27 - PAGE 76.png', alt: 'Scene 27 Page 76' },
     { src: 'Layout/SCENE 28 - PAGE 77.png', alt: 'Scene 28 Page 77', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 28 - PAGE 77 - DIALOGUE.png' },
     { src: 'Layout/SCENE 28 - PAGE 78.png', alt: 'Scene 28 Page 78', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 28 - PAGE 78 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 29 - PAGE 79.png', alt: 'Scene 29 Page 79' },
-    { src: 'Layout/SCENE 29 - PAGE 80.png', alt: 'Scene 29 Page 80' },
+    { src: 'Layout/SCENE 29 - PAGE 79.png', alt: 'Scene 29 Page 79', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 29 - PAGE 79 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 29 - PAGE 80.png', alt: 'Scene 29 Page 80', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 29 - PAGE 80 - DIALOGUE.png' },
     { src: 'Layout/SCENE 29 - PAGE 81.png', alt: 'Scene 29 Page 81' },
     { src: 'Layout/SCENE 29 - PAGE 82.png', alt: 'Scene 29 Page 82' },
-    { src: 'Layout/SCENE 30 - PAGE 83.png', alt: 'Scene 30 Page 83' },
-    { src: 'Layout/SCENE 30 - PAGE 84.png', alt: 'Scene 30 Page 84' },
-    { src: 'Layout/SCENE 30 - PAGE 85.png', alt: 'Scene 30 Page 85' },
-    { src: 'Layout/SCENE 30 - PAGE 86.png', alt: 'Scene 30 Page 86' },
-    { src: 'Layout/SCENE 31 - PAGE 87.png', alt: 'Scene 31 Page 87' },
-    { src: 'Layout/SCENE 31 - PAGE 88.png', alt: 'Scene 31 Page 88' },
+    { src: 'Layout/SCENE 30 - PAGE 83.png', alt: 'Scene 30 Page 83', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 83 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 30 - PAGE 84.png', alt: 'Scene 30 Page 84', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 84 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 30 - PAGE 85.png', alt: 'Scene 30 Page 85', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 85 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 30 - PAGE 86.png', alt: 'Scene 30 Page 86', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 86 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 31 - PAGE 87.png', alt: 'Scene 31 Page 87', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 87 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 31 - PAGE 88.png', alt: 'Scene 31 Page 88', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 88 - DIALOGUE.png' },
     { src: 'Layout/SCENE 31 - PAGE 89.png', alt: 'Scene 31 Page 89' },
-    { src: 'Layout/SCENE 32 - PAGE 90.png', alt: 'Scene 32 Page 90' },
+    { src: 'Layout/SCENE 32 - PAGE 90.png', alt: 'Scene 32 Page 90', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 32 - PAGE 90 - DIALOGUE.png' },
     { src: 'Layout/SCENE 33 - PAGE 91.png', alt: 'Scene 33 Page 91' },
-    { src: 'Layout/SCENE 33 - PAGE 92.png', alt: 'Scene 33 Page 92' },
+    { src: 'Layout/SCENE 33 - PAGE 92.png', alt: 'Scene 33 Page 92', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 33 - PAGE 92 - DIALOGUE.png' },
     { src: 'Layout/SCENE 33 - PAGE 93.png', alt: 'Scene 33 Page 93' }
   ];
 
@@ -420,6 +447,13 @@ function Book() {
   return (
     <div ref={containerRef} className={`relative w-full h-screen flex flex-col items-center justify-center transition-colors duration-500 ${isNightMode ? 'bg-slate-950/50' : ''} overflow-hidden`}>
 
+      {/* Status Message Toast - Lifted to Top */}
+      {statusMessage && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm z-50 animate-in fade-in slide-in-from-top-2 whitespace-nowrap">
+          {statusMessage}
+        </div>
+      )}
+
       {/* Book Container */}
       <div className="relative z-10 flex items-center justify-center">
         <HTMLFlipBook
@@ -440,7 +474,7 @@ function Book() {
           flippingTime={1000}
           autoSize={false}
           drawShadow={true}
-          useMouseEvents={true}
+          useMouseEvents={!isInteracting}
         >
           {/* Front Cover */}
           <div className="page cover bg-gradient-to-br from-purple-900 via-violet-800 to-indigo-900 text-white flex flex-col items-center justify-center p-0 border-r-4 border-purple-950 relative overflow-hidden">
@@ -461,6 +495,8 @@ function Book() {
                 hasSpeechBubble={page.hasSpeechBubble}
                 speechText={page.speechText}
                 speechBubbleSrc={page.speechBubbleSrc ? `${import.meta.env.BASE_URL}${page.speechBubbleSrc}` : null}
+                setStatusMessage={setStatusMessage}
+                setIsInteracting={setIsInteracting}
               />
             </div>
           ))}
