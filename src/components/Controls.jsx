@@ -11,7 +11,6 @@ const Controls = ({
     onToggleFullscreen,
     onBookmark,
     onShare,
-    onHighlight,
     onNotes,
     onTableOfContents,
     zoom = 1,

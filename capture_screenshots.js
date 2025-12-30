@@ -1,3 +1,4 @@
+/* eslint-env node */
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
@@ -19,6 +20,7 @@ import path from 'path';
     } catch (e) {
         console.error('Error navigating:', e);
         await browser.close();
+        // eslint-disable-next-line no-undef
         process.exit(1);
     }
 

@@ -4,34 +4,10 @@ import Controls from './Controls';
 import Modal from './Modal';
 import { MessageCircle, ToggleLeft, ToggleRight, Loader2 } from 'lucide-react';
 
-// Custom Hook for Long Press (Not used but kept for utility)
-const useLongPress = (callback = () => { }, ms = 500) => {
-  const [startLongPress, setStartLongPress] = useState(false);
 
-  useEffect(() => {
-    let timerId;
-    if (startLongPress) {
-      timerId = setTimeout(callback, ms);
-    } else {
-      clearTimeout(timerId);
-    }
-
-    return () => {
-      clearTimeout(timerId);
-    };
-  }, [callback, ms, startLongPress]);
-
-  return {
-    onMouseDown: () => setStartLongPress(true),
-    onMouseUp: () => setStartLongPress(false),
-    onMouseLeave: () => setStartLongPress(false),
-    onTouchStart: () => setStartLongPress(true),
-    onTouchEnd: () => setStartLongPress(false),
-  };
-};
 
 // MediaPage Component (handles both Images and Videos)
-const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbleSrc, isSpeechBubbleVisible, isMobile }) => {
+const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbleSrc, isSpeechBubbleVisible, isMobile, videoOverlay }) => {
   const isVideo = src && src.toLowerCase().endsWith('.mp4');
   const [isHovered, setIsHovered] = useState(false);
   const [isBubbleImageLoaded, setIsBubbleImageLoaded] = useState(false);
@@ -58,6 +34,10 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
     }
   };
 
+  // Helper to convert pixels to percentage strings based on A4 (595x842)
+  const toPctX = (val) => `${(val / 595) * 100}%`;
+  const toPctY = (val) => `${(val / 842) * 100}%`;
+
   return (
     <div
       className="relative w-full h-full group overflow-hidden bg-white flex items-center justify-center p-0"
@@ -72,13 +52,35 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
           playsInline
         />
       ) : (
-        <img
-          src={src}
-          alt={alt}
-          className="w-full h-full object-contain shadow-sm"
-          onContextMenu={(e) => e.preventDefault()}
-          onError={(e) => { e.target.src = 'https://placehold.co/450x636/e9d5ff/6b21a8?text=Page+' + pageNum }}
-        />
+        <>
+          <img
+            src={src}
+            alt={alt}
+            className="w-full h-full object-contain shadow-sm"
+            onContextMenu={(e) => e.preventDefault()}
+            onError={(e) => { e.target.src = 'https://placehold.co/450x636/e9d5ff/6b21a8?text=Page+' + pageNum }}
+          />
+          {videoOverlay && (
+            <div
+              className="absolute z-10 pointer-events-none"
+              style={{
+                left: toPctX(videoOverlay.x),
+                top: toPctY(videoOverlay.y),
+                width: toPctX(videoOverlay.width),
+                height: toPctY(videoOverlay.height),
+              }}
+            >
+              <video
+                src={`${import.meta.env.BASE_URL}${videoOverlay.src}`}
+                className="w-full h-full object-fill"
+                autoPlay
+                loop
+                muted
+                playsInline
+              />
+            </div>
+          )}
+        </>
       )}
 
       {/* Interaction Button - Only show if there's a bubble */}
@@ -184,8 +186,14 @@ function Book() {
 
   // ... (Pages array remains the same as previous step, ensuring complete content)
   const pages = [
-    { src: 'Layout/SCENE 1 - PAGE 1.png', alt: 'Scene 1 Page 1' },
-    { src: 'Layout/SCENE 1 - PAGE 2.png', alt: 'Scene 1 Page 2' },
+    {
+      src: 'Layout/SCENE 1 - PAGE 1.png', alt: 'Scene 1 Page 1',
+      videoOverlay: { src: 'Animated Clips/SCENE 1 - PAGE 1.mp4', x: -519, y: 140, width: 1035, height: 547 }
+    },
+    {
+      src: 'Layout/SCENE 1 - PAGE 2.png', alt: 'Scene 1 Page 2',
+      videoOverlay: { src: 'Animated Clips/SCENE 1 - PAGE 2.mp4', x: -519, y: 140, width: 1035, height: 547 }
+    },
     { src: 'Layout/SCENE 1 - PAGE 3.png', alt: 'Scene 1 Page 3' },
     { src: 'Layout/SCENE 2 - PAGE 4.png', alt: 'Scene 2 Page 4', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 4 - DIALOGUE.png' },
     { src: 'Layout/SCENE 2 - PAGE 5.png', alt: 'Scene 2 Page 5' },
@@ -199,7 +207,10 @@ function Book() {
     { src: 'Layout/SCENE 4 - PAGE 13.png', alt: 'Scene 4 Page 13', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 4 - PAGE 13 - DIALOGUE.png' },
     { src: 'Layout/SCENE 4 - PAGE 14.png', alt: 'Scene 4 Page 14' },
     { src: 'Layout/SCENE 4 - PAGE 15.png', alt: 'Scene 4 Page 15' },
-    { src: 'Layout/SCENE 4 - PAGE 16.png', alt: 'Scene 4 Page 16' },
+    {
+      src: 'Layout/SCENE 4 - PAGE 16.png', alt: 'Scene 4 Page 16',
+      videoOverlay: { src: 'Animated Clips/SCENE 4 - PAGE 6.mp4', x: 105, y: 220, width: 385, height: 416 }
+    },
     { src: 'Layout/SCENE 5 - PAGE 17.png', alt: 'Scene 5 Page 17' },
     { src: 'Layout/SCENE 5 - PAGE 18.png', alt: 'Scene 5 Page 18' },
     { src: 'Layout/SCENE 5 - PAGE 19.png', alt: 'Scene 5 Page 19', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 5 - PAGE 19 - DIALOGUE.png' },
@@ -208,19 +219,43 @@ function Book() {
     { src: 'Layout/SCENE 5 - PAGE 22.png', alt: 'Scene 5 Page 22' },
     { src: 'Layout/SCENE 6 - PAGE 23.png', alt: 'Scene 6 Page 23', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 6 - PAGE 23 - DIALOGUE.png' },
     { src: 'Layout/SCENE 6 - PAGE 24.png', alt: 'Scene 6 Page 24', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 6 - PAGE 24 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 7 - PAGE 25.png', alt: 'Scene 7 Page 25', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 7 - PAGE 25 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 7 - PAGE 26.png', alt: 'Scene 7 Page 26' },
+    {
+      src: 'Layout/SCENE 7 - PAGE 25.png', alt: 'Scene 7 Page 25', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 7 - PAGE 25 - DIALOGUE.png',
+      videoOverlay: { src: 'Animated Clips/SCENE 7 - PAGE 25.mp4', x: 30, y: 64, width: 290, height: 338 }
+    },
+    {
+      src: 'Layout/SCENE 7 - PAGE 26.png', alt: 'Scene 7 Page 26',
+      videoOverlay: { src: 'Animated Clips/SCENE 7 - PAGE 26.mp4', x: 8, y: 357, width: 580, height: 277 }
+    },
     { src: 'Layout/SCENE 8 - PAGE 27.png', alt: 'Scene 8 Page 27', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 8 - PAGE 27 - DIALOGUE.png' },
     { src: 'Layout/SCENE 8 - PAGE 28.png', alt: 'Scene 8 Page 28', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 8 - PAGE 28 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 9 - PAGE 29.png', alt: 'Scene 9 Page 29', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 9 - PAGE 29 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 9 - PAGE 30.png', alt: 'Scene 9 Page 30' },
-    { src: 'Layout/SCENE 10 - PAGE 31.png', alt: 'Scene 10 Page 31' },
+    {
+      src: 'Layout/SCENE 9 - PAGE 29.png', alt: 'Scene 9 Page 29', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 9 - PAGE 29 - DIALOGUE.png',
+      videoOverlay: { src: 'Animated Clips/SCENE 9 - PAGE 29.mp4', x: 2, y: 60, width: 525, height: 300 }
+    },
+    {
+      src: 'Layout/SCENE 9 - PAGE 30.png', alt: 'Scene 9 Page 30',
+      videoOverlay: { src: 'Animated Clips/SCENE 9 - PAGE 30.mp4', x: 222, y: 336, width: 354, height: 170 }
+    },
+    {
+      src: 'Layout/SCENE 10 - PAGE 31.png', alt: 'Scene 10 Page 31',
+      videoOverlay: { src: 'Animated Clips/SCENE 10 - PAGE 31.mp4', x: 55, y: 489, width: 485, height: 223 }
+    },
     { src: 'Layout/SCENE 11 - PAGE 32.png', alt: 'Scene 11 Page 32', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 11 - PAGE 32 - DIALOGUE.png' },
     { src: 'Layout/SCENE 11 - PAGE 33.png', alt: 'Scene 11 Page 33', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 11 - PAGE 33 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 11 - PAGE 34.png', alt: 'Scene 11 Page 34' },
-    { src: 'Layout/SCENE 12 - PAGE 35.png', alt: 'Scene 12 Page 35', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 12 - PAGE 35 - DIALOGUE.png' },
+    {
+      src: 'Layout/SCENE 11 - PAGE 34.png', alt: 'Scene 11 Page 34',
+      videoOverlay: { src: 'Animated Clips/SCENE 11 - PAGE 34.mp4', x: 22, y: 336, width: 278, height: 414 }
+    },
+    {
+      src: 'Layout/SCENE 12 - PAGE 35.png', alt: 'Scene 12 Page 35', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 12 - PAGE 35 - DIALOGUE.png',
+      videoOverlay: { src: 'Animated Clips/SCENE 12 - PAGE 35.mp4', x: 59, y: 219, width: 477, height: 333 }
+    },
     { src: 'Layout/SCENE 12 - PAGE 36.png', alt: 'Scene 12 Page 36' },
-    { src: 'Layout/SCENE 12 - PAGE 37.png', alt: 'Scene 12 Page 37', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 12 - PAGE 37 - DIALOGUE.png' },
+    {
+      src: 'Layout/SCENE 12 - PAGE 37.png', alt: 'Scene 12 Page 37', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 12 - PAGE 37 - DIALOGUE.png',
+      videoOverlay: { src: 'Animated Clips/SCENE 12 - PAGE 37.mp4', x: 33, y: 172, width: 514, height: 310 }
+    },
     { src: 'Layout/SCENE 13 - PAGE 38.png', alt: 'Scene 13 Page 38' },
     { src: 'Layout/SCENE 13 - PAGE 39.png', alt: 'Scene 13 Page 39' },
     { src: 'Layout/SCENE 14 - PAGE 40.png', alt: 'Scene 14 Page 40', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 14 - PAGE 40 - DIALOGUE.png' },
@@ -229,7 +264,10 @@ function Book() {
     { src: 'Layout/SCENE 15 - PAGE 43.png', alt: 'Scene 15 Page 43' },
     { src: 'Layout/SCENE 15 - PAGE 44.png', alt: 'Scene 15 Page 44' },
     { src: 'Layout/SCENE 16 - PAGE 45.png', alt: 'Scene 16 Page 45' },
-    { src: 'Layout/SCENE 16 - PAGE 46.png', alt: 'Scene 16 Page 46' },
+    {
+      src: 'Layout/SCENE 16 - PAGE 46.png', alt: 'Scene 16 Page 46',
+      videoOverlay: { src: 'Animated Clips/SCENE 16 - PAGE 46.mp4', x: 35, y: 37, width: 273, height: 385 }
+    },
     { src: 'Layout/SCENE 17 - PAGE 47.png', alt: 'Scene 17 Page 47', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 17 - PAGE 47 - DIALOGUE.png' },
     { src: 'Layout/SCENE 17 - PAGE 48.png', alt: 'Scene 17 Page 48', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 17 - PAGE 48 - DIAGLOGUE.png' },
     { src: 'Layout/SCENE 18 - PAGE 49.png', alt: 'Scene 18 Page 49' },
@@ -256,7 +294,10 @@ function Book() {
     { src: 'Layout/SCENE 25 - PAGE 70.png', alt: 'Scene 25 Page 70' },
     { src: 'Layout/SCENE 26 - PAGE 71.png', alt: 'Scene 26 Page 71', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 26 - PAGE 71 - DIALOGUE.png' },
     { src: 'Layout/SCENE 26 - PAGE 72.png', alt: 'Scene 26 Page 72', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 26 - PAGE 72 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 26 - PAGE 73.png', alt: 'Scene 26 Page 73' },
+    {
+      src: 'Layout/SCENE 26 - PAGE 73.png', alt: 'Scene 26 Page 73',
+      videoOverlay: { src: 'Animated Clips/SCENE 26 - PAGE 73.mp4', x: 60, y: 291, width: 475, height: 260 }
+    },
     { src: 'Layout/SCENE 27 - PAGE 74.png', alt: 'Scene 27 Page 74', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 27 - PAGE 74 - DIALOGUE.png' },
     { src: 'Layout/SCENE 27 - PAGE 75.png', alt: 'Scene 27 Page 75' },
     { src: 'Layout/SCENE 27 - PAGE 76.png', alt: 'Scene 27 Page 76' },
@@ -266,14 +307,32 @@ function Book() {
     { src: 'Layout/SCENE 29 - PAGE 80.png', alt: 'Scene 29 Page 80', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 29 - PAGE 80 - DIALOGUE.png' },
     { src: 'Layout/SCENE 29 - PAGE 81.png', alt: 'Scene 29 Page 81' },
     { src: 'Layout/SCENE 29 - PAGE 82.png', alt: 'Scene 29 Page 82' },
-    { src: 'Layout/SCENE 30 - PAGE 83.png', alt: 'Scene 30 Page 83', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 83 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 30 - PAGE 84.png', alt: 'Scene 30 Page 84', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 84 - DIALOGUE.png' },
+    {
+      src: 'Layout/SCENE 30 - PAGE 83.png', alt: 'Scene 30 Page 83', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 83 - DIALOGUE.png',
+      videoOverlay: { src: 'Animated Clips/SCENE 30 - PAGE 83.mp4', x: 44, y: 288, width: 507, height: 267 }
+    },
+    {
+      src: 'Layout/SCENE 30 - PAGE 84.png', alt: 'Scene 30 Page 84', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 84 - DIALOGUE.png',
+      videoOverlay: { src: 'Animated Clips/SCENE 30 - PAGE 84.mp4', x: 45, y: 289, width: 505, height: 264 }
+    },
     { src: 'Layout/SCENE 30 - PAGE 85.png', alt: 'Scene 30 Page 85', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 85 - DIALOGUE.png' },
     { src: 'Layout/SCENE 30 - PAGE 86.png', alt: 'Scene 30 Page 86', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 86 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 31 - PAGE 87.png', alt: 'Scene 31 Page 87', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 87 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 31 - PAGE 88.png', alt: 'Scene 31 Page 88', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 88 - DIALOGUE.png' },
-    { src: 'Layout/SCENE 31 - PAGE 89.png', alt: 'Scene 31 Page 89' },
-    { src: 'Layout/SCENE 32 - PAGE 90.png', alt: 'Scene 32 Page 90', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 32 - PAGE 90 - DIALOGUE.png' },
+    {
+      src: 'Layout/SCENE 31 - PAGE 87.png', alt: 'Scene 31 Page 87', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 87 - DIALOGUE.png',
+      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 87.mp4', x: 23, y: 274, width: 550, height: 294 }
+    },
+    {
+      src: 'Layout/SCENE 31 - PAGE 88.png', alt: 'Scene 31 Page 88', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 88 - DIALOGUE.png',
+      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 88.mp4', x: 150, y: 451, width: 410, height: 217 }
+    },
+    {
+      src: 'Layout/SCENE 31 - PAGE 89.png', alt: 'Scene 31 Page 89',
+      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 89.mp4', x: 48, y: 287, width: 500, height: 268 }
+    },
+    {
+      src: 'Layout/SCENE 32 - PAGE 90.png', alt: 'Scene 32 Page 90', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 32 - PAGE 90 - DIALOGUE.png',
+      videoOverlay: { src: 'Animated Clips/SCENE 32 - PAGE 90.mp4', x: 300, y: 453, width: 296, height: 327 }
+    },
     { src: 'Layout/SCENE 33 - PAGE 91.png', alt: 'Scene 33 Page 91' },
     { src: 'Layout/SCENE 33 - PAGE 92.png', alt: 'Scene 33 Page 92', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 33 - PAGE 92 - DIALOGUE.png' },
     { src: 'Layout/SCENE 33 - PAGE 93.png', alt: 'Scene 33 Page 93' }
@@ -281,7 +340,7 @@ function Book() {
 
   useEffect(() => {
     setTotalPages(pages.length + 2);
-  }, []);
+  }, [pages.length]);
 
   // Audio unlock logic
   useEffect(() => {
@@ -297,60 +356,7 @@ function Book() {
     return () => document.removeEventListener('click', unlockAudio);
   }, []);
 
-  const [dimensions, setDimensions] = useState({ width: 400, height: 600 });
-  const containerRef = useRef(null);
 
-  useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        const { clientWidth, clientHeight } = containerRef.current;
-        let newWidth = clientWidth;
-        let newHeight = clientHeight;
-        const maxWidth = 1000;
-        const maxHeight = 800;
-        const isMobile = window.innerWidth < 768;
-
-        if (isMobile) {
-          newWidth = Math.min(clientWidth, 500); // Allow full width on mobile
-          const availableWidth = Math.min(clientWidth, maxWidth);
-          const availableHeight = Math.min(clientHeight, maxHeight);
-          const targetRatio = 4.5 / 6.36; // Approx ratio based on 450x636
-          const containerRatio = availableWidth / availableHeight;
-
-          if (containerRatio > targetRatio) {
-            newHeight = availableHeight * 0.95;
-            newWidth = newHeight * targetRatio;
-          } else {
-            newWidth = availableWidth * 0.95;
-            newHeight = newWidth / targetRatio;
-          }
-        } else {
-          const availableWidth = Math.min(clientWidth, 1200);
-          const availableHeight = Math.min(clientHeight, 900);
-          const targetRatio = 4 / 3;
-          const containerRatio = availableWidth / availableHeight;
-
-          if (containerRatio > targetRatio) {
-            newHeight = availableHeight * 0.85;
-            newWidth = newHeight * targetRatio;
-          } else {
-            newWidth = availableWidth * 0.85;
-            newHeight = newWidth / targetRatio;
-          }
-        }
-        // Force width to match logic
-        if (isMobile) {
-          setDimensions({ width: Math.floor(newWidth), height: Math.floor(newHeight) });
-        } else {
-          setDimensions({ width: Math.floor(newWidth / 2), height: Math.floor(newHeight) });
-        }
-      }
-    };
-
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, []);
 
   const nextPage = () => {
     bookRef.current?.pageFlip()?.flipNext();
@@ -404,20 +410,7 @@ function Book() {
     }
   };
 
-  const handleBookmark = () => {
-    localStorage.setItem('bookmarkedPage', currentPage);
-    alert(`Bookmarked page ${currentPage + 1}`);
-  };
 
-  const handleDownload = () => {
-    alert('Download feature coming soon!');
-  };
-
-  const handleShare = () => {
-    navigator.clipboard?.writeText(window.location.href)
-      .then(() => alert('Link copied to clipboard!'))
-      .catch(() => alert('Failed to copy link'));
-  };
 
   const handleSearch = () => {
     const query = prompt('🔍 Search the book:');
@@ -430,9 +423,7 @@ function Book() {
     setIsNightMode(!isNightMode);
   };
 
-  const handlePrint = () => {
-    alert(`🖨️ Printing page ${currentPage + 1}...\nPrint dialog will open soon!`);
-  };
+
 
   const handleJumpToCover = () => {
     bookRef.current?.pageFlip()?.flip(0);
@@ -461,7 +452,7 @@ function Book() {
   };
 
   return (
-    <div ref={containerRef} className={`relative w-full h-screen flex flex-col items-center justify-center transition-colors duration-500 ${isNightMode ? 'bg-slate-950/50' : ''} overflow-hidden`}>
+    <div className={`relative w-full h-screen flex flex-col items-center justify-center transition-colors duration-500 ${isNightMode ? 'bg-slate-950/50' : ''} overflow-hidden`}>
 
       {/* Global Loading Overlay */}
       {isGlobalLoading && (
