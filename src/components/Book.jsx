@@ -36,13 +36,27 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
   const [isHovered, setIsHovered] = useState(false);
   const [isBubbleImageLoaded, setIsBubbleImageLoaded] = useState(false);
 
-  // Determine visibility: Global Switch OR Local Hover OR Mobile (Always Visible)
-  const shouldShow = isSpeechBubbleVisible || isHovered || isMobile;
+  // Mobile: Bubbles visible by default, hidden explicitly
+  const [isMobileHidden, setIsMobileHidden] = useState(false);
+
+  // Determine visibility
+  // Mobile: Visible unless hidden. Desktop: Global Toggle OR Hover.
+  const shouldShow = isMobile
+    ? !isMobileHidden
+    : (isSpeechBubbleVisible || isHovered);
 
   // Reset loading state when src changes
   useEffect(() => {
     setIsBubbleImageLoaded(false);
+    setIsMobileHidden(false); // Reset mobile hidden state on page change
   }, [speechBubbleSrc]);
+
+  const handleMobileClick = (e) => {
+    e.stopPropagation();
+    if (isMobile) {
+      setIsMobileHidden(!isMobileHidden);
+    }
+  };
 
   return (
     <div
@@ -74,11 +88,9 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
           onClick={(e) => e.stopPropagation()} // Prevent click from flipping page
         >
           <button
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            onTouchStart={() => setIsHovered(true)}
-            onTouchEnd={() => setIsHovered(false)}
-            onClick={(e) => e.stopPropagation()} // Do nothing on click
+            onMouseEnter={() => !isMobile && setIsHovered(true)}
+            onMouseLeave={() => !isMobile && setIsHovered(false)}
+            onClick={handleMobileClick}
             className={`p-3 rounded-full shadow-lg transition-opacity duration-300 hover:opacity-0 ${shouldShow ? 'bg-purple-600 text-white' : 'bg-white/80 text-purple-600'}`}
           >
             <MessageCircle size={24} fill={shouldShow ? "currentColor" : "none"} />
@@ -134,6 +146,14 @@ function Book() {
   // Mobile Detection
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Global visibility state for speech bubbles
   const [isSpeechBubbleVisible, setIsSpeechBubbleVisible] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null);
@@ -162,75 +182,7 @@ function Book() {
     });
   }, []);
 
-  // Update mobile state on resize
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const [dimensions, setDimensions] = useState({ width: 400, height: 600 });
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        const { clientWidth, clientHeight } = containerRef.current;
-        let newWidth = clientWidth;
-        let newHeight = clientHeight;
-        const maxWidth = 1000;
-        const maxHeight = 800;
-        const isMobileScreen = window.innerWidth < 768;
-
-        if (isMobileScreen) {
-          // In mobile (1-page view), width is just the width of the container (minus padding)
-          newWidth = Math.min(clientWidth - 20, 500);
-          // Calculate height based on aspect ratio 4:3 (approx A4)
-          newHeight = Math.min(clientHeight, maxHeight);
-          const targetRatio = 595 / 842; // A4 ratio ~0.7
-
-          if (newWidth / newHeight > targetRatio) {
-            newWidth = newHeight * targetRatio;
-          } else {
-            newHeight = newWidth / targetRatio;
-          }
-
-        } else {
-          const availableWidth = Math.min(clientWidth, 1200);
-          const availableHeight = Math.min(clientHeight, 900);
-          const targetRatio = 4 / 3;
-          const containerRatio = availableWidth / availableHeight;
-
-          if (containerRatio > targetRatio) {
-            newHeight = availableHeight * 0.85;
-            newWidth = newHeight * targetRatio;
-          } else {
-            newWidth = availableWidth * 0.85;
-            newHeight = newWidth / targetRatio;
-          }
-        }
-
-        // For react-pageflip, width depends on whether it's showing 1 or 2 pages.
-        // If 2 pages (desktop), width passed to component is usually width of ONE page.
-        // If 1 page (mobile w/ usePortrait=false logic? No, usePortrait=true means 1 page).
-
-        // Let's stick to the previous logic but ensure mobile gets a good size
-        if (isMobileScreen) {
-          setDimensions({ width: Math.floor(newWidth), height: Math.floor(newHeight) });
-        } else {
-          setDimensions({ width: Math.floor(newWidth / 2), height: Math.floor(newHeight) });
-        }
-      }
-    };
-
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, []);
-
-  // ... Pages array ..
+  // ... (Pages array remains the same as previous step, ensuring complete content)
   const pages = [
     { src: 'Layout/SCENE 1 - PAGE 1.png', alt: 'Scene 1 Page 1' },
     { src: 'Layout/SCENE 1 - PAGE 2.png', alt: 'Scene 1 Page 2' },
@@ -331,7 +283,7 @@ function Book() {
     setTotalPages(pages.length + 2);
   }, []);
 
-  // Audio unlock ... (omitted same ref logic)
+  // Audio unlock logic
   useEffect(() => {
     const unlockAudio = () => {
       if (audioRef.current) {
@@ -345,6 +297,61 @@ function Book() {
     return () => document.removeEventListener('click', unlockAudio);
   }, []);
 
+  const [dimensions, setDimensions] = useState({ width: 400, height: 600 });
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const { clientWidth, clientHeight } = containerRef.current;
+        let newWidth = clientWidth;
+        let newHeight = clientHeight;
+        const maxWidth = 1000;
+        const maxHeight = 800;
+        const isMobile = window.innerWidth < 768;
+
+        if (isMobile) {
+          newWidth = Math.min(clientWidth, 500); // Allow full width on mobile
+          const availableWidth = Math.min(clientWidth, maxWidth);
+          const availableHeight = Math.min(clientHeight, maxHeight);
+          const targetRatio = 4.5 / 6.36; // Approx ratio based on 450x636
+          const containerRatio = availableWidth / availableHeight;
+
+          if (containerRatio > targetRatio) {
+            newHeight = availableHeight * 0.95;
+            newWidth = newHeight * targetRatio;
+          } else {
+            newWidth = availableWidth * 0.95;
+            newHeight = newWidth / targetRatio;
+          }
+        } else {
+          const availableWidth = Math.min(clientWidth, 1200);
+          const availableHeight = Math.min(clientHeight, 900);
+          const targetRatio = 4 / 3;
+          const containerRatio = availableWidth / availableHeight;
+
+          if (containerRatio > targetRatio) {
+            newHeight = availableHeight * 0.85;
+            newWidth = newHeight * targetRatio;
+          } else {
+            newWidth = availableWidth * 0.85;
+            newHeight = newWidth / targetRatio;
+          }
+        }
+        // Force width to match logic
+        if (isMobile) {
+          setDimensions({ width: Math.floor(newWidth), height: Math.floor(newHeight) });
+        } else {
+          setDimensions({ width: Math.floor(newWidth / 2), height: Math.floor(newHeight) });
+        }
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
   const nextPage = () => {
     bookRef.current?.pageFlip()?.flipNext();
   };
@@ -353,6 +360,7 @@ function Book() {
     bookRef.current?.pageFlip()?.flipPrev();
   };
 
+  // Keyboard navigation for page flipping
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'ArrowLeft') {
@@ -396,7 +404,6 @@ function Book() {
     }
   };
 
-  // ... Handlers (Bookmark, Download, Share, etc.) ...
   const handleBookmark = () => {
     localStorage.setItem('bookmarkedPage', currentPage);
     alert(`Bookmarked page ${currentPage + 1}`);
@@ -464,10 +471,10 @@ function Book() {
         </div>
       )}
 
-      {/* Top Bar for Switch and Message */}
-      <div className="absolute top-0 left-0 w-full z-50 p-4 pointer-events-none">
-        {/* Centered Toggle Switch - HIDDEN ON MOBILE */}
-        {!isMobile && (
+      {/* Top Bar for Switch and Message - Only show on Desktop */}
+      {!isMobile && (
+        <div className="absolute top-0 left-0 w-full z-50 p-4 pointer-events-none">
+          {/* Centered Toggle Switch */}
           <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-auto flex items-center gap-2 bg-black/60 backdrop-blur-md p-2 rounded-full text-white shadow-lg justify-center z-50">
             <span className="text-xs font-bold uppercase tracking-wider pl-2">Dialogues</span>
             <button
@@ -482,30 +489,30 @@ function Book() {
               )}
             </button>
           </div>
-        )}
 
-        {/* Feedback Message (Bottom Center with Fade) */}
-        <div className={`absolute bottom-12 left-1/2 -translate-x-1/2 pointer-events-none transition-opacity duration-500 ${isMessageVisible ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="bg-black/80 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm whitespace-nowrap shadow-lg">
-            {statusMessage}
+          {/* Feedback Message (Bottom Center with Fade) */}
+          <div className={`absolute bottom-12 left-1/2 -translate-x-1/2 pointer-events-none transition-opacity duration-500 ${isMessageVisible ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="bg-black/80 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm whitespace-nowrap shadow-lg">
+              {statusMessage}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Book Container */}
       <div className="relative z-10 flex items-center justify-center">
         <HTMLFlipBook
-          width={dimensions.width}
-          height={dimensions.height}
+          width={450}
+          height={636}
           size="fixed"
-          minWidth={dimensions.width}
-          maxWidth={dimensions.width}
-          minHeight={dimensions.height}
-          maxHeight={dimensions.height}
+          minWidth={318}
+          maxWidth={595}
+          minHeight={450}
+          maxHeight={842}
           maxShadowOpacity={0.5}
           showCover={true}
           mobileScrollSupport={true}
-          usePortrait={isMobile} // Force 1-page view on mobile
+          usePortrait={isMobile} // Single page view on mobile
           className="shadow-2xl"
           ref={bookRef}
           onFlip={handleFlip}
@@ -535,7 +542,6 @@ function Book() {
                 speechBubbleSrc={page.speechBubbleSrc ? `${import.meta.env.BASE_URL}${page.speechBubbleSrc}` : null}
                 isSpeechBubbleVisible={isSpeechBubbleVisible}
                 isMobile={isMobile}
-                toggleSpeechBubbles={toggleSpeechBubbles}
               />
             </div>
           ))}
@@ -575,8 +581,7 @@ function Book() {
           onJumpToPage={handleJumpToPage}
         />
 
-        {/* Modal Declarations matched previous ... */}
-        {/* Same Modals as before ... */}
+        {/* Dialogs */}
         <Modal
           isOpen={activeDialog === 'bookmarks'}
           onClose={() => setActiveDialog(null)}
@@ -652,7 +657,6 @@ function Book() {
           title="Share Book"
         >
           <div className="space-y-4">
-            {/* ... Reuse previous modal logic for share ... */}
             <div className="p-4 rounded-xl bg-white/5 border border-white/5">
               <p className="text-white/60 text-xs mb-2 uppercase tracking-wider">Book Link</p>
               <div className="flex items-center gap-2">
@@ -670,7 +674,15 @@ function Book() {
                 </button>
               </div>
             </div>
-            {/* ... */}
+
+            <div className="grid grid-cols-2 gap-3">
+              <button className="p-3 rounded-xl bg-[#1DA1F2]/20 hover:bg-[#1DA1F2]/30 text-[#1DA1F2] font-medium transition-all">
+                Twitter
+              </button>
+              <button className="p-3 rounded-xl bg-[#4267B2]/20 hover:bg-[#4267B2]/30 text-[#4267B2] font-medium transition-all">
+                Facebook
+              </button>
+            </div>
           </div>
         </Modal>
 
@@ -680,7 +692,6 @@ function Book() {
           title="Save / Download"
         >
           <div className="space-y-3">
-            {/* ... Reuse previous modal logic for save ... */}
             <button className="w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center gap-4 group transition-all">
               <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-400">
                 PDF
@@ -690,7 +701,7 @@ function Book() {
                 <div className="text-white/40 text-xs">High quality format</div>
               </div>
             </button>
-            {/* ... */}
+
             <button className="w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center gap-4 group transition-all">
               <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
                 IMG
