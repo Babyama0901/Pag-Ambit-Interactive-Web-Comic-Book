@@ -2,9 +2,9 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import Controls from './Controls';
 import Modal from './Modal';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, ToggleLeft, ToggleRight } from 'lucide-react';
 
-// Custom Hook for Long Press (Kept for potential future use, though not used for locking now)
+// Custom Hook for Long Press (Not used but kept for utility)
 const useLongPress = (callback = () => { }, ms = 500) => {
   const [startLongPress, setStartLongPress] = useState(false);
 
@@ -31,55 +31,8 @@ const useLongPress = (callback = () => { }, ms = 500) => {
 };
 
 // MediaPage Component (handles both Images and Videos)
-const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbleSrc, setStatusMessage, setIsInteracting }) => {
-  const [showOverlay, setShowOverlay] = useState(false);
-  const [isLocked, setIsLocked] = useState(false);
+const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbleSrc, isSpeechBubbleVisible, toggleSpeechBubbles }) => {
   const isVideo = src && src.toLowerCase().endsWith('.mp4');
-
-  // Drag Logic State
-  const dragStartX = useRef(null);
-
-  const handleDragStart = (clientX) => {
-    dragStartX.current = clientX;
-    setIsInteracting(true); // Disable navigation
-  };
-
-  const handleDragEnd = (clientX) => {
-    setIsInteracting(false); // Enable navigation
-    if (dragStartX.current !== null) {
-      const deltaX = clientX - dragStartX.current;
-      // Dragging left (negative delta) by at least 30px
-      if (deltaX < -30 && !isLocked) {
-        setIsLocked(true);
-        setShowOverlay(true);
-        setStatusMessage("Speech bubble locked visible");
-      }
-      dragStartX.current = null;
-    }
-  };
-
-  const handleTouchStart = (e) => handleDragStart(e.touches[0].clientX);
-  const handleTouchEnd = (e) => handleDragEnd(e.changedTouches[0].clientX);
-  const handleMouseDown = (e) => {
-    e.stopPropagation(); // Stop click from bubbling to book flip
-    handleDragStart(e.clientX);
-  };
-  const handleMouseUp = (e) => {
-    e.stopPropagation();
-    handleDragEnd(e.clientX);
-  };
-
-  const handleMouseEnter = () => {
-    if (!isLocked) {
-      setShowOverlay(true);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (!isLocked) {
-      setShowOverlay(false);
-    }
-  };
 
   return (
     <div
@@ -111,16 +64,11 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
           onClick={(e) => e.stopPropagation()} // Prevent click from flipping page
         >
           <button
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            className={`p-3 rounded-full shadow-lg transition-all duration-300 ${isLocked ? 'bg-purple-600 text-white animate-pulse' : 'bg-white/80 text-purple-600 hover:bg-white hover:scale-110 cursor-grab active:cursor-grabbing'}`}
-            title="Drag left to lock"
+            onClick={toggleSpeechBubbles}
+            className={`p-3 rounded-full shadow-lg transition-all duration-300 ${isSpeechBubbleVisible ? 'bg-purple-600 text-white' : 'bg-white/80 text-purple-600 hover:bg-white hover:scale-110'}`}
+            title="Toggle Dialogue"
           >
-            <MessageCircle size={24} fill={isLocked ? "currentColor" : "none"} />
+            <MessageCircle size={24} fill={isSpeechBubbleVisible ? "currentColor" : "none"} />
           </button>
         </div>
       )}
@@ -128,7 +76,7 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
       {/* Speech Bubble Overlay */}
       {!isVideo && (hasSpeechBubble || speechBubbleSrc) && (
         <div
-          className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300 ${showOverlay ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300 ${isSpeechBubbleVisible ? 'opacity-100' : 'opacity-0'}`}
         >
           {speechBubbleSrc ? (
             <img
@@ -158,11 +106,17 @@ function Book() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isNightMode, setIsNightMode] = useState(false);
 
-  // Lifted state for status message
+  // Global visibility state for speech bubbles
+  const [isSpeechBubbleVisible, setIsSpeechBubbleVisible] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null);
 
-  // State to track if user is interacting with the button (to disable page flip)
-  const [isInteracting, setIsInteracting] = useState(false);
+  const toggleSpeechBubbles = useCallback(() => {
+    setIsSpeechBubbleVisible(prev => {
+      const newState = !prev;
+      setStatusMessage(newState ? "Speech bubbles visible" : "Speech bubbles hidden");
+      return newState;
+    });
+  }, []);
 
   // Auto-hide status message after 3 seconds
   useEffect(() => {
@@ -231,7 +185,7 @@ function Book() {
     { src: 'Layout/SCENE 21 - PAGE 56.png', alt: 'Scene 21 Page 56' },
     { src: 'Layout/SCENE 21 - PAGE 57.png', alt: 'Scene 21 Page 57', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 21 - PAGE 57 - DIALOGUE.png' },
     { src: 'Layout/SCENE 21 - PAGE 58.png', alt: 'Scene 21 Page 58' },
-    { src: 'Layout/SCENE 22 - PAGE 59.png', alt: 'Scene 22 Page 59', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 22 - PAGE 59 - DIALOGUE.png' },
+    { src: 'Layout/SCENE 22 - PAGE 59.png', alt: 'Scene 22 Page 59', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 22 - PAGE 59 - DIALOGUE-1.png' },
     { src: 'Layout/SCENE 22 - PAGE 60.png', alt: 'Scene 22 Page 60' },
     { src: 'Layout/SCENE 22 - PAGE 61.png', alt: 'Scene 22 Page 61', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 22 - PAGE 61 - DIALOGUE.png' },
     { src: 'Layout/SCENE 23 - PAGE 62.png', alt: 'Scene 23 Page 62', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 23 - PAGE 62 - DIALOGUE.png' },
@@ -447,12 +401,36 @@ function Book() {
   return (
     <div ref={containerRef} className={`relative w-full h-screen flex flex-col items-center justify-center transition-colors duration-500 ${isNightMode ? 'bg-slate-950/50' : ''} overflow-hidden`}>
 
-      {/* Status Message Toast - Lifted to Top */}
-      {statusMessage && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm z-50 animate-in fade-in slide-in-from-top-2 whitespace-nowrap">
-          {statusMessage}
+      {/* Top Bar for Switch and Message */}
+      <div className="absolute top-0 left-0 w-full z-50 p-4 flex justify-between items-start pointer-events-none">
+        {/* Left spacer */}
+        <div className="w-32"></div>
+
+        {/* Center Feedback Message */}
+        <div className="pointer-events-auto">
+          {statusMessage && (
+            <div className="bg-black/80 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm animate-in fade-in slide-in-from-top-2 whitespace-nowrap shadow-lg">
+              {statusMessage}
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Right Toggle Switch */}
+        <div className="pointer-events-auto flex items-center gap-2 bg-black/60 backdrop-blur-md p-2 rounded-full text-white shadow-lg w-32 justify-center">
+          <span className="text-xs font-bold uppercase tracking-wider">Dialogues</span>
+          <button
+            onClick={toggleSpeechBubbles}
+            className="focus:outline-none flex items-center"
+            title="Toggle All Dialogues"
+          >
+            {isSpeechBubbleVisible ? (
+              <ToggleRight size={32} className="text-green-400" />
+            ) : (
+              <ToggleLeft size={32} className="text-gray-400" />
+            )}
+          </button>
+        </div>
+      </div>
 
       {/* Book Container */}
       <div className="relative z-10 flex items-center justify-center">
@@ -474,7 +452,7 @@ function Book() {
           flippingTime={1000}
           autoSize={false}
           drawShadow={true}
-          useMouseEvents={!isInteracting}
+          useMouseEvents={true}
         >
           {/* Front Cover */}
           <div className="page cover bg-gradient-to-br from-purple-900 via-violet-800 to-indigo-900 text-white flex flex-col items-center justify-center p-0 border-r-4 border-purple-950 relative overflow-hidden">
@@ -495,8 +473,8 @@ function Book() {
                 hasSpeechBubble={page.hasSpeechBubble}
                 speechText={page.speechText}
                 speechBubbleSrc={page.speechBubbleSrc ? `${import.meta.env.BASE_URL}${page.speechBubbleSrc}` : null}
-                setStatusMessage={setStatusMessage}
-                setIsInteracting={setIsInteracting}
+                isSpeechBubbleVisible={isSpeechBubbleVisible}
+                toggleSpeechBubbles={toggleSpeechBubbles}
               />
             </div>
           ))}
