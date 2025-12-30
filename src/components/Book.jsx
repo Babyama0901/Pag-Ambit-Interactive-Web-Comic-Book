@@ -62,7 +62,7 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
           />
           {videoOverlay && (
             <div
-              className="absolute z-10 pointer-events-none"
+              className="absolute z-20 pointer-events-none"
               style={{
                 left: toPctX(videoOverlay.x),
                 top: toPctY(videoOverlay.y),
@@ -71,7 +71,7 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
               }}
             >
               <video
-                src={`${import.meta.env.BASE_URL}${videoOverlay.src}`}
+                src={encodeURI(`${import.meta.env.BASE_URL}${videoOverlay.src}`)}
                 className="w-full h-full object-fill"
                 autoPlay
                 loop
