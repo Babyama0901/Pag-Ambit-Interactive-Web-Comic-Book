@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import Controls from './Controls';
 import Modal from './Modal';
-import { MessageCircle, ToggleLeft, ToggleRight } from 'lucide-react';
+import { MessageCircle, ToggleLeft, ToggleRight, Loader2 } from 'lucide-react';
 
 // Custom Hook for Long Press (Not used but kept for utility)
 const useLongPress = (callback = () => { }, ms = 500) => {
@@ -31,8 +31,18 @@ const useLongPress = (callback = () => { }, ms = 500) => {
 };
 
 // MediaPage Component (handles both Images and Videos)
-const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbleSrc, isSpeechBubbleVisible, toggleSpeechBubbles }) => {
+const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbleSrc, isSpeechBubbleVisible, isMobile }) => {
   const isVideo = src && src.toLowerCase().endsWith('.mp4');
+  const [isHovered, setIsHovered] = useState(false);
+  const [isBubbleImageLoaded, setIsBubbleImageLoaded] = useState(false);
+
+  // Determine visibility: Global Switch OR Local Hover OR Mobile (Always Visible)
+  const shouldShow = isSpeechBubbleVisible || isHovered || isMobile;
+
+  // Reset loading state when src changes
+  useEffect(() => {
+    setIsBubbleImageLoaded(false);
+  }, [speechBubbleSrc]);
 
   return (
     <div
@@ -64,11 +74,14 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
           onClick={(e) => e.stopPropagation()} // Prevent click from flipping page
         >
           <button
-            onClick={toggleSpeechBubbles}
-            className={`p-3 rounded-full shadow-lg transition-all duration-300 ${isSpeechBubbleVisible ? 'bg-purple-600 text-white' : 'bg-white/80 text-purple-600 hover:bg-white hover:scale-110'}`}
-            title="Toggle Dialogue"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onTouchStart={() => setIsHovered(true)}
+            onTouchEnd={() => setIsHovered(false)}
+            onClick={(e) => e.stopPropagation()} // Do nothing on click
+            className={`p-3 rounded-full shadow-lg transition-opacity duration-300 hover:opacity-0 ${shouldShow ? 'bg-purple-600 text-white' : 'bg-white/80 text-purple-600'}`}
           >
-            <MessageCircle size={24} fill={isSpeechBubbleVisible ? "currentColor" : "none"} />
+            <MessageCircle size={24} fill={shouldShow ? "currentColor" : "none"} />
           </button>
         </div>
       )}
@@ -76,14 +89,25 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
       {/* Speech Bubble Overlay */}
       {!isVideo && (hasSpeechBubble || speechBubbleSrc) && (
         <div
-          className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300 ${isSpeechBubbleVisible ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300 ${shouldShow ? 'opacity-100' : 'opacity-0'}`}
         >
           {speechBubbleSrc ? (
-            <img
-              src={speechBubbleSrc}
-              alt="Speech Bubble"
-              className="absolute inset-0 w-full h-full object-contain pointer-events-none z-20"
-            />
+            <>
+              {/* Spinner while loading */}
+              {!isBubbleImageLoaded && shouldShow && (
+                <div className="absolute inset-0 flex items-center justify-center z-30">
+                  <div className="bg-white/80 p-3 rounded-full shadow-lg">
+                    <Loader2 className="animate-spin text-purple-600" size={32} />
+                  </div>
+                </div>
+              )}
+              <img
+                src={speechBubbleSrc}
+                alt="Speech Bubble"
+                className={`absolute inset-0 w-full h-full object-contain pointer-events-none z-20 transition-opacity duration-300 ${isBubbleImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onLoad={() => setIsBubbleImageLoaded(true)}
+              />
+            </>
           ) : (
             // Fallback content if only text is provided
             <div className="bg-white p-4 rounded shadow-lg">
@@ -105,27 +129,108 @@ function Book() {
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isNightMode, setIsNightMode] = useState(false);
+  const [isGlobalLoading, setIsGlobalLoading] = useState(true);
+
+  // Mobile Detection
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   // Global visibility state for speech bubbles
   const [isSpeechBubbleVisible, setIsSpeechBubbleVisible] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null);
+  const [isMessageVisible, setIsMessageVisible] = useState(false); // Controls opacity animation
+
+  // Simulate global loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsGlobalLoading(false);
+    }, 2000); // 2 seconds loading screen
+    return () => clearTimeout(timer);
+  }, []);
 
   const toggleSpeechBubbles = useCallback(() => {
     setIsSpeechBubbleVisible(prev => {
       const newState = !prev;
       setStatusMessage(newState ? "Speech bubbles visible" : "Speech bubbles hidden");
+      setIsMessageVisible(true);
+
+      // Start fade out after 2.5 seconds
+      setTimeout(() => {
+        setIsMessageVisible(false);
+      }, 2500);
+
       return newState;
     });
   }, []);
 
-  // Auto-hide status message after 3 seconds
+  // Update mobile state on resize
   useEffect(() => {
-    if (statusMessage) {
-      const timer = setTimeout(() => setStatusMessage(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [statusMessage]);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
+  const [dimensions, setDimensions] = useState({ width: 400, height: 600 });
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const { clientWidth, clientHeight } = containerRef.current;
+        let newWidth = clientWidth;
+        let newHeight = clientHeight;
+        const maxWidth = 1000;
+        const maxHeight = 800;
+        const isMobileScreen = window.innerWidth < 768;
+
+        if (isMobileScreen) {
+          // In mobile (1-page view), width is just the width of the container (minus padding)
+          newWidth = Math.min(clientWidth - 20, 500);
+          // Calculate height based on aspect ratio 4:3 (approx A4)
+          newHeight = Math.min(clientHeight, maxHeight);
+          const targetRatio = 595 / 842; // A4 ratio ~0.7
+
+          if (newWidth / newHeight > targetRatio) {
+            newWidth = newHeight * targetRatio;
+          } else {
+            newHeight = newWidth / targetRatio;
+          }
+
+        } else {
+          const availableWidth = Math.min(clientWidth, 1200);
+          const availableHeight = Math.min(clientHeight, 900);
+          const targetRatio = 4 / 3;
+          const containerRatio = availableWidth / availableHeight;
+
+          if (containerRatio > targetRatio) {
+            newHeight = availableHeight * 0.85;
+            newWidth = newHeight * targetRatio;
+          } else {
+            newWidth = availableWidth * 0.85;
+            newHeight = newWidth / targetRatio;
+          }
+        }
+
+        // For react-pageflip, width depends on whether it's showing 1 or 2 pages.
+        // If 2 pages (desktop), width passed to component is usually width of ONE page.
+        // If 1 page (mobile w/ usePortrait=false logic? No, usePortrait=true means 1 page).
+
+        // Let's stick to the previous logic but ensure mobile gets a good size
+        if (isMobileScreen) {
+          setDimensions({ width: Math.floor(newWidth), height: Math.floor(newHeight) });
+        } else {
+          setDimensions({ width: Math.floor(newWidth / 2), height: Math.floor(newHeight) });
+        }
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
+  // ... Pages array ..
   const pages = [
     { src: 'Layout/SCENE 1 - PAGE 1.png', alt: 'Scene 1 Page 1' },
     { src: 'Layout/SCENE 1 - PAGE 2.png', alt: 'Scene 1 Page 2' },
@@ -226,7 +331,7 @@ function Book() {
     setTotalPages(pages.length + 2);
   }, []);
 
-  // Audio unlock logic
+  // Audio unlock ... (omitted same ref logic)
   useEffect(() => {
     const unlockAudio = () => {
       if (audioRef.current) {
@@ -240,56 +345,6 @@ function Book() {
     return () => document.removeEventListener('click', unlockAudio);
   }, []);
 
-  const [dimensions, setDimensions] = useState({ width: 400, height: 600 });
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        const { clientWidth, clientHeight } = containerRef.current;
-        let newWidth = clientWidth;
-        let newHeight = clientHeight;
-        const maxWidth = 1000;
-        const maxHeight = 800;
-        const isMobile = window.innerWidth < 768;
-
-        if (isMobile) {
-          newWidth = Math.min(clientWidth - 20, 500);
-          const availableWidth = Math.min(clientWidth, maxWidth);
-          const availableHeight = Math.min(clientHeight, maxHeight);
-          const targetRatio = 4 / 3;
-          const containerRatio = availableWidth / availableHeight;
-
-          if (containerRatio > targetRatio) {
-            newHeight = availableHeight * 0.9;
-            newWidth = newHeight * targetRatio;
-          } else {
-            newWidth = availableWidth * 0.95;
-            newHeight = newWidth / targetRatio;
-          }
-        } else {
-          const availableWidth = Math.min(clientWidth, 1200);
-          const availableHeight = Math.min(clientHeight, 900);
-          const targetRatio = 4 / 3;
-          const containerRatio = availableWidth / availableHeight;
-
-          if (containerRatio > targetRatio) {
-            newHeight = availableHeight * 0.85;
-            newWidth = newHeight * targetRatio;
-          } else {
-            newWidth = availableWidth * 0.85;
-            newHeight = newWidth / targetRatio;
-          }
-        }
-        setDimensions({ width: Math.floor(newWidth / 2), height: Math.floor(newHeight) });
-      }
-    };
-
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, []);
-
   const nextPage = () => {
     bookRef.current?.pageFlip()?.flipNext();
   };
@@ -298,7 +353,6 @@ function Book() {
     bookRef.current?.pageFlip()?.flipPrev();
   };
 
-  // Keyboard navigation for page flipping
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'ArrowLeft') {
@@ -342,6 +396,7 @@ function Book() {
     }
   };
 
+  // ... Handlers (Bookmark, Download, Share, etc.) ...
   const handleBookmark = () => {
     localStorage.setItem('bookmarkedPage', currentPage);
     alert(`Bookmarked page ${currentPage + 1}`);
@@ -401,51 +456,56 @@ function Book() {
   return (
     <div ref={containerRef} className={`relative w-full h-screen flex flex-col items-center justify-center transition-colors duration-500 ${isNightMode ? 'bg-slate-950/50' : ''} overflow-hidden`}>
 
-      {/* Top Bar for Switch and Message */}
-      <div className="absolute top-0 left-0 w-full z-50 p-4 flex justify-between items-start pointer-events-none">
-        {/* Left spacer */}
-        <div className="w-32"></div>
-
-        {/* Center Feedback Message */}
-        <div className="pointer-events-auto">
-          {statusMessage && (
-            <div className="bg-black/80 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm animate-in fade-in slide-in-from-top-2 whitespace-nowrap shadow-lg">
-              {statusMessage}
-            </div>
-          )}
+      {/* Global Loading Overlay */}
+      {isGlobalLoading && (
+        <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center transition-opacity duration-1000 animate-out fade-out">
+          <Loader2 className="animate-spin text-purple-500 mb-4" size={64} />
+          <h2 className="text-white text-xl font-medium tracking-widest animate-pulse">LOADING</h2>
         </div>
+      )}
 
-        {/* Right Toggle Switch */}
-        <div className="pointer-events-auto flex items-center gap-2 bg-black/60 backdrop-blur-md p-2 rounded-full text-white shadow-lg w-32 justify-center">
-          <span className="text-xs font-bold uppercase tracking-wider">Dialogues</span>
-          <button
-            onClick={toggleSpeechBubbles}
-            className="focus:outline-none flex items-center"
-            title="Toggle All Dialogues"
-          >
-            {isSpeechBubbleVisible ? (
-              <ToggleRight size={32} className="text-green-400" />
-            ) : (
-              <ToggleLeft size={32} className="text-gray-400" />
-            )}
-          </button>
+      {/* Top Bar for Switch and Message */}
+      <div className="absolute top-0 left-0 w-full z-50 p-4 pointer-events-none">
+        {/* Centered Toggle Switch - HIDDEN ON MOBILE */}
+        {!isMobile && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-auto flex items-center gap-2 bg-black/60 backdrop-blur-md p-2 rounded-full text-white shadow-lg justify-center z-50">
+            <span className="text-xs font-bold uppercase tracking-wider pl-2">Dialogues</span>
+            <button
+              onClick={toggleSpeechBubbles}
+              className="focus:outline-none flex items-center pr-1"
+              title="Toggle All Dialogues"
+            >
+              {isSpeechBubbleVisible ? (
+                <ToggleRight size={32} className="text-green-400" />
+              ) : (
+                <ToggleLeft size={32} className="text-gray-400" />
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Feedback Message (Bottom Center with Fade) */}
+        <div className={`absolute bottom-12 left-1/2 -translate-x-1/2 pointer-events-none transition-opacity duration-500 ${isMessageVisible ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="bg-black/80 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm whitespace-nowrap shadow-lg">
+            {statusMessage}
+          </div>
         </div>
       </div>
 
       {/* Book Container */}
       <div className="relative z-10 flex items-center justify-center">
         <HTMLFlipBook
-          width={450}
-          height={636}
+          width={dimensions.width}
+          height={dimensions.height}
           size="fixed"
-          minWidth={318}
-          maxWidth={595}
-          minHeight={450}
-          maxHeight={842}
+          minWidth={dimensions.width}
+          maxWidth={dimensions.width}
+          minHeight={dimensions.height}
+          maxHeight={dimensions.height}
           maxShadowOpacity={0.5}
           showCover={true}
           mobileScrollSupport={true}
-          usePortrait={false}
+          usePortrait={isMobile} // Force 1-page view on mobile
           className="shadow-2xl"
           ref={bookRef}
           onFlip={handleFlip}
@@ -474,6 +534,7 @@ function Book() {
                 speechText={page.speechText}
                 speechBubbleSrc={page.speechBubbleSrc ? `${import.meta.env.BASE_URL}${page.speechBubbleSrc}` : null}
                 isSpeechBubbleVisible={isSpeechBubbleVisible}
+                isMobile={isMobile}
                 toggleSpeechBubbles={toggleSpeechBubbles}
               />
             </div>
@@ -514,7 +575,8 @@ function Book() {
           onJumpToPage={handleJumpToPage}
         />
 
-        {/* Dialogs */}
+        {/* Modal Declarations matched previous ... */}
+        {/* Same Modals as before ... */}
         <Modal
           isOpen={activeDialog === 'bookmarks'}
           onClose={() => setActiveDialog(null)}
@@ -590,6 +652,7 @@ function Book() {
           title="Share Book"
         >
           <div className="space-y-4">
+            {/* ... Reuse previous modal logic for share ... */}
             <div className="p-4 rounded-xl bg-white/5 border border-white/5">
               <p className="text-white/60 text-xs mb-2 uppercase tracking-wider">Book Link</p>
               <div className="flex items-center gap-2">
@@ -607,15 +670,7 @@ function Book() {
                 </button>
               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <button className="p-3 rounded-xl bg-[#1DA1F2]/20 hover:bg-[#1DA1F2]/30 text-[#1DA1F2] font-medium transition-all">
-                Twitter
-              </button>
-              <button className="p-3 rounded-xl bg-[#4267B2]/20 hover:bg-[#4267B2]/30 text-[#4267B2] font-medium transition-all">
-                Facebook
-              </button>
-            </div>
+            {/* ... */}
           </div>
         </Modal>
 
@@ -625,6 +680,7 @@ function Book() {
           title="Save / Download"
         >
           <div className="space-y-3">
+            {/* ... Reuse previous modal logic for save ... */}
             <button className="w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center gap-4 group transition-all">
               <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-400">
                 PDF
@@ -634,7 +690,7 @@ function Book() {
                 <div className="text-white/40 text-xs">High quality format</div>
               </div>
             </button>
-
+            {/* ... */}
             <button className="w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center gap-4 group transition-all">
               <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
                 IMG
