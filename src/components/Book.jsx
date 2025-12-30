@@ -533,6 +533,7 @@ function Book() {
                 speechBubbleSrc={page.speechBubbleSrc ? `${import.meta.env.BASE_URL}${page.speechBubbleSrc}` : null}
                 isSpeechBubbleVisible={isSpeechBubbleVisible}
                 isMobile={isMobile}
+                videoOverlay={page.videoOverlay}
               />
             </div>
           ))}
