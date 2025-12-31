@@ -72,7 +72,7 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
             >
               <video
                 src={encodeURI(`${import.meta.env.BASE_URL}${videoOverlay.src}`)}
-                className="w-full h-full object-fill"
+                className="w-full h-full object-cover"
                 autoPlay
                 loop
                 muted
