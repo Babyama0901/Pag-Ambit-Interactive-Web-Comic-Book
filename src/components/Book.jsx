@@ -56,7 +56,7 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
           <img
             src={src}
             alt={alt}
-            className="w-full h-full object-contain shadow-sm"
+            className="w-full h-full object-cover shadow-sm"
             onContextMenu={(e) => e.preventDefault()}
             onError={(e) => { e.target.src = 'https://placehold.co/450x636/e9d5ff/6b21a8?text=Page+' + pageNum }}
           />
@@ -77,6 +77,7 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
                 loop
                 muted
                 playsInline
+                style={{ transform: videoOverlay.scale ? `scale(${videoOverlay.scale})` : 'scale(1)' }}
               />
             </div>
           )}
@@ -322,19 +323,19 @@ function Book() {
     { src: 'Layout/SCENE 30 - PAGE 86.png', alt: 'Scene 30 Page 86', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 86 - DIALOGUE.png' },
     {
       src: 'Layout/SCENE 31 - PAGE 87.png', alt: 'Scene 31 Page 87', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 87 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 87.mp4', x: 23, y: 274, width: 550, height: 294 }
+      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 87.mp4', x: 23, y: 274, width: 550, height: 294, scale: 1.1 }
     },
     {
       src: 'Layout/SCENE 31 - PAGE 88.png', alt: 'Scene 31 Page 88', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 88 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 88.mp4', x: 150, y: 451, width: 410, height: 217 }
+      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 88.mp4', x: 150, y: 451, width: 410, height: 217, scale: 1.1 }
     },
     {
       src: 'Layout/SCENE 31 - PAGE 89.png', alt: 'Scene 31 Page 89',
-      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 89.mp4', x: 48, y: 287, width: 500, height: 268 }
+      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 89.mp4', x: 48, y: 287, width: 500, height: 268, scale: 1.1 }
     },
     {
       src: 'Layout/SCENE 32 - PAGE 90.png', alt: 'Scene 32 Page 90', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 32 - PAGE 90 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 32 - PAGE 90.mp4', x: 300, y: 453, width: 296, height: 327 }
+      videoOverlay: { src: 'Animated Clips/SCENE 32 - PAGE 90.mp4', x: 300, y: 453, width: 296, height: 327, scale: 1.1 }
     },
     { src: 'Layout/SCENE 33 - PAGE 91.png', alt: 'Scene 33 Page 91' },
     { src: 'Layout/SCENE 33 - PAGE 92.png', alt: 'Scene 33 Page 92', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 33 - PAGE 92 - DIALOGUE.png' },
