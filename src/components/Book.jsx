@@ -256,7 +256,10 @@ function Book() {
       src: 'Layout/SCENE 12 - PAGE 37.png', alt: 'Scene 12 Page 37', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 12 - PAGE 37 - DIALOGUE.png',
       videoOverlay: { src: 'Animated Clips/SCENE 12 - PAGE 37.mp4', x: 33, y: 172, width: 514, height: 310 }
     },
-    { src: 'Layout/SCENE 13 - PAGE 38.png', alt: 'Scene 13 Page 38' },
+    {
+      src: 'Layout/SCENE 13 - PAGE 38.png', alt: 'Scene 13 Page 38',
+      videoOverlay: { src: 'Animated Clips/SCENE 13 - PAGE 38.mp4', x: 33, y: 172, width: 514, height: 310 }
+    },
     { src: 'Layout/SCENE 13 - PAGE 39.png', alt: 'Scene 13 Page 39' },
     { src: 'Layout/SCENE 14 - PAGE 40.png', alt: 'Scene 14 Page 40', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 14 - PAGE 40 - DIALOGUE.png' },
     { src: 'Layout/SCENE 14 - PAGE 41.png', alt: 'Scene 14 Page 41', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 14 - PAGE 41 - DIALOGUE.png' },
