@@ -62,7 +62,7 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
           />
           {videoOverlay && (
             <div
-              className="absolute z-20 pointer-events-none"
+              className="absolute z-20 pointer-events-none overflow-hidden"
               style={{
                 left: toPctX(videoOverlay.x),
                 top: toPctY(videoOverlay.y),
@@ -188,8 +188,7 @@ function Book() {
   // ... (Pages array remains the same as previous step, ensuring complete content)
   const pages = [
     {
-      src: 'Layout/SCENE 1 - PAGE 1.png', alt: 'Scene 1 Page 1',
-      videoOverlay: { src: 'Animated Clips/SCENE 1 - PAGE 1.mp4', x: -519, y: 140, width: 1035, height: 547 }
+      src: 'Layout/SCENE 1 - PAGE 1.png', alt: 'Scene 1 Page 1'
     },
     {
       src: 'Layout/SCENE 1 - PAGE 2.png', alt: 'Scene 1 Page 2',
