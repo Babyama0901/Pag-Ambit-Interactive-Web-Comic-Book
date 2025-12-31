@@ -117,15 +117,19 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
                 </div>
               )}
               <img
-                src={speechBubbleSrc}
+                src={encodeURI(speechBubbleSrc)}
                 alt="Speech Bubble"
                 className={`absolute inset-0 w-full h-full object-contain pointer-events-none z-20 transition-opacity duration-300 ${isBubbleImageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setIsBubbleImageLoaded(true)}
+                onError={() => {
+                  console.error("Failed to load speech bubble:", speechBubbleSrc);
+                  setIsBubbleImageLoaded(true); // Force show (broken image icon) so it's not invisible
+                }}
               />
             </>
           ) : (
             // Fallback content if only text is provided
-            <div className="bg-white p-4 rounded shadow-lg">
+            <div className={`bg-white p-4 rounded shadow-lg transition-opacity duration-300 ${shouldShow ? 'opacity-100' : 'opacity-0'}`}>
               {speechText}
             </div>
           )}
