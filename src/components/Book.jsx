@@ -197,6 +197,74 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
   );
 };
 
+
+
+// Mobile Scroll Component (Webtoon style)
+const MobileScrollMode = ({ pages, activePage, onPageChange, volume, isSpeechBubbleVisible }) => {
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number(entry.target.getAttribute('data-index'));
+            onPageChange(index);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    const pageElements = document.querySelectorAll('.mobile-page');
+    pageElements.forEach((el) => observer.observe(el));
+
+    return () => pageElements.forEach((el) => observer.unobserve(el));
+  }, [pages]); // Re-run if pages change
+
+  const allContent = [
+    { src: 'Layout/FRONT BOOK COVER.png', alt: 'Front Cover', isCover: true, index: 0 },
+    ...pages.map((p, i) => ({ ...p, index: i + 1 })),
+    { src: 'Layout/BACK BOOK COVER.png', alt: 'Back Cover', isCover: true, index: pages.length + 1 }
+  ];
+
+  return (
+    <div className="flex flex-col w-full h-auto bg-gray-900 pb-20"> {/* pb-20 for controls space if needed */}
+      {allContent.map((item) => (
+        <div
+          key={item.index}
+          data-index={item.index}
+          className="mobile-page w-full relative mb-1 shadow-lg"
+        >
+          {item.isCover ? (
+            <img
+              src={`${import.meta.env.BASE_URL}${item.src}`}
+              alt={item.alt}
+              className="w-full h-auto object-cover block"
+            />
+          ) : (
+            <div className="w-full relative">
+              <MediaPage
+                src={`${import.meta.env.BASE_URL}${item.src || ''}`}
+                alt={item.alt}
+                pageNum={item.index}
+                hasSpeechBubble={item.hasSpeechBubble}
+                speechText={item.speechText}
+                speechBubbleSrc={item.speechBubbleSrc ? `${import.meta.env.BASE_URL}${item.speechBubbleSrc}` : null}
+                isSpeechBubbleVisible={isSpeechBubbleVisible}
+                isMobile={true}
+                videoOverlay={item.videoOverlay}
+                audioSrc={item.audioSrc}
+                isActive={activePage === item.index}
+                volume={volume}
+              />
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+
 function Book() {
   const audioRef = useRef(null);
   const bookRef = useRef(null);
@@ -578,66 +646,76 @@ function Book() {
         </div>
       )}
 
-      {/* Book Container */}
-      <div className="relative z-10 flex items-center justify-center">
-        <HTMLFlipBook
-          width={450}
-          height={636}
-          size="fixed"
-          minWidth={318}
-          maxWidth={595}
-          minHeight={450}
-          maxHeight={842}
-          maxShadowOpacity={0.5}
-          showCover={true}
-          mobileScrollSupport={true}
-          usePortrait={isMobile} // Single page view on mobile
-          className="shadow-2xl"
-          ref={bookRef}
-          onFlip={handleFlip}
-          flippingTime={1000}
-          autoSize={false}
-          drawShadow={true}
-          useMouseEvents={true}
-        >
-          {/* Front Cover */}
-          <div className="page cover bg-gradient-to-br from-purple-900 via-violet-800 to-indigo-900 text-white flex flex-col items-center justify-center p-0 border-r-4 border-purple-950 relative overflow-hidden">
-            <img
-              src={`${import.meta.env.BASE_URL}Layout/FRONT BOOK COVER.png`}
-              alt="Front Cover"
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          {/* Pages */}
-          {pages.map((page, index) => (
-            <div key={index} className="page bg-white">
-              <MediaPage
-                src={`${import.meta.env.BASE_URL}${page.src || ''}`}
-                alt={`Page ${index + 1}`}
-                pageNum={index + 1}
-                hasSpeechBubble={page.hasSpeechBubble}
-                speechText={page.speechText}
-                speechBubbleSrc={page.speechBubbleSrc ? `${import.meta.env.BASE_URL}${page.speechBubbleSrc}` : null}
-                isSpeechBubbleVisible={isSpeechBubbleVisible}
-                isMobile={isMobile}
-                videoOverlay={page.videoOverlay}
-                audioSrc={page.audioSrc}
-                isActive={currentPage === index + 1}
-                volume={volume}
+      {/* Book Container - Configured for Mobile Scroll or Desktop Flip */}
+      <div className="relative z-10 flex items-center justify-center w-full">
+        {isMobile ? (
+          <MobileScrollMode
+            pages={pages}
+            activePage={currentPage}
+            onPageChange={setCurrentPage}
+            volume={volume}
+            isSpeechBubbleVisible={isSpeechBubbleVisible} // Though mobile toggles individually, passing this doesn't hurt
+          />
+        ) : (
+          <HTMLFlipBook
+            width={450}
+            height={636}
+            size="fixed"
+            minWidth={318}
+            maxWidth={595}
+            minHeight={450}
+            maxHeight={842}
+            maxShadowOpacity={0.5}
+            showCover={true}
+            mobileScrollSupport={true}
+            usePortrait={true}
+            className="shadow-2xl"
+            ref={bookRef}
+            onFlip={handleFlip}
+            flippingTime={1000}
+            autoSize={false}
+            drawShadow={true}
+            useMouseEvents={true}
+          >
+            {/* Front Cover */}
+            <div className="page cover bg-gradient-to-br from-purple-900 via-violet-800 to-indigo-900 text-white flex flex-col items-center justify-center p-0 border-r-4 border-purple-950 relative overflow-hidden">
+              <img
+                src={`${import.meta.env.BASE_URL}Layout/FRONT BOOK COVER.png`}
+                alt="Front Cover"
+                className="w-full h-full object-cover"
               />
             </div>
-          ))}
 
-          {/* Back Cover */}
-          <div className="page cover bg-gradient-to-br from-indigo-900 via-purple-800 to-violet-900 text-white flex flex-col items-center justify-center p-0 border-l-4 border-purple-950 relative overflow-hidden">
-            <img
-              src={`${import.meta.env.BASE_URL}Layout/BACK BOOK COVER.png`}
-              alt="Back Cover"
-              className="w-full h-full object-cover"
-            />
-          </div>
-        </HTMLFlipBook>
+            {/* Pages */}
+            {pages.map((page, index) => (
+              <div key={index} className="page bg-white">
+                <MediaPage
+                  src={`${import.meta.env.BASE_URL}${page.src || ''}`}
+                  alt={`Page ${index + 1}`}
+                  pageNum={index + 1}
+                  hasSpeechBubble={page.hasSpeechBubble}
+                  speechText={page.speechText}
+                  speechBubbleSrc={page.speechBubbleSrc ? `${import.meta.env.BASE_URL}${page.speechBubbleSrc}` : null}
+                  isSpeechBubbleVisible={isSpeechBubbleVisible}
+                  isMobile={isMobile}
+                  videoOverlay={page.videoOverlay}
+                  audioSrc={page.audioSrc}
+                  isActive={currentPage === index + 1}
+                  volume={volume}
+                />
+              </div>
+            ))}
+
+            {/* Back Cover */}
+            <div className="page cover bg-gradient-to-br from-indigo-900 via-purple-800 to-violet-900 text-white flex flex-col items-center justify-center p-0 border-l-4 border-purple-950 relative overflow-hidden">
+              <img
+                src={`${import.meta.env.BASE_URL}Layout/BACK BOOK COVER.png`}
+                alt="Back Cover"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </HTMLFlipBook>
+        )}
 
         {/* Controls */}
         <Controls
