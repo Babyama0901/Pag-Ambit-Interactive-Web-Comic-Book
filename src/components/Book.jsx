@@ -227,7 +227,7 @@ const MobileScrollMode = ({ pages, activePage, onPageChange, volume, isSpeechBub
   ];
 
   return (
-    <div className="flex flex-col w-full h-auto bg-gray-900 pb-20"> {/* pb-20 for controls space if needed */}
+    <div className="flex flex-col w-full h-[100dvh] bg-slate-900 overflow-y-auto overscroll-y-contain"> {/* Fixed height for scroll */}
       {allContent.map((item) => (
         <div
           key={item.index}
