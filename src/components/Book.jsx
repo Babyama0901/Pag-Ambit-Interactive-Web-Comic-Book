@@ -87,6 +87,7 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
       className="relative w-full h-full group overflow-hidden bg-white flex items-center justify-center p-0"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={handleMobileClick}
     >
       {isVideo ? (
         <video
@@ -128,63 +129,70 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
             </div>
           )}
         </>
-      )}
+      )
+      }
 
-      {/* Interaction Button - Only show if there's a bubble */}
-      {!isVideo && (hasSpeechBubble || speechBubbleSrc) && (
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30"
-          onClick={(e) => e.stopPropagation()} // Prevent click from flipping page
-        >
-          <button
-            onMouseEnter={() => !isMobile && setIsHovered(true)}
-            onMouseLeave={() => !isMobile && setIsHovered(false)}
-            onClick={handleMobileClick}
-            className={`p-3 rounded-full shadow-lg transition-opacity duration-300 hover:opacity-0 ${shouldShow ? 'bg-purple-600 text-white' : 'bg-white/80 text-purple-600'}`}
+      {/* Interaction Button - Only show if there's a bubble AND NOT MOBILE */}
+      {
+        !isVideo && (hasSpeechBubble || speechBubbleSrc) && !isMobile && (
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30"
+            onClick={(e) => e.stopPropagation()} // Prevent click from flipping page
           >
-            <MessageCircle size={24} fill={shouldShow ? "currentColor" : "none"} />
-          </button>
-        </div>
-      )}
+            <button
+              onMouseEnter={() => !isMobile && setIsHovered(true)}
+              onMouseLeave={() => !isMobile && setIsHovered(false)}
+              onClick={handleMobileClick}
+              className={`p-3 rounded-full shadow-lg transition-opacity duration-300 hover:opacity-0 ${shouldShow ? 'bg-purple-600 text-white' : 'bg-white/80 text-purple-600'}`}
+            >
+              <MessageCircle size={24} fill={shouldShow ? "currentColor" : "none"} />
+            </button>
+          </div>
+        )
+      }
 
       {/* Speech Bubble Overlay */}
-      {!isVideo && (hasSpeechBubble || speechBubbleSrc) && (
-        <div
-          className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300 ${shouldShow ? 'opacity-100' : 'opacity-0'}`}
-        >
-          {speechBubbleSrc ? (
-            <>
-              {/* Spinner while loading */}
-              {/* Spinner while loading - REMOVED */}
-              <img
-                src={encodeURI(speechBubbleSrc)}
-                alt="Speech Bubble"
-                className={`absolute inset-0 w-full h-full object-contain pointer-events-none z-20 transition-opacity duration-300 ${isBubbleImageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                onLoad={() => setIsBubbleImageLoaded(true)}
-                onError={() => {
-                  console.error("Failed to load speech bubble:", speechBubbleSrc);
-                  setIsBubbleImageLoaded(true); // Force show (broken image icon) so it's not invisible
-                }}
-              />
-            </>
-          ) : (
-            // Fallback content if only text is provided
-            <div className={`bg-white p-4 rounded shadow-lg transition-opacity duration-300 ${shouldShow ? 'opacity-100' : 'opacity-0'}`}>
-              {speechText}
-            </div>
-          )}
-        </div>
-      )}
+      {
+        !isVideo && (hasSpeechBubble || speechBubbleSrc) && (
+          <div
+            className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300 ${shouldShow ? 'opacity-100' : 'opacity-0'}`}
+          >
+            {speechBubbleSrc ? (
+              <>
+                {/* Spinner while loading */}
+                {/* Spinner while loading - REMOVED */}
+                <img
+                  src={encodeURI(speechBubbleSrc)}
+                  alt="Speech Bubble"
+                  className={`absolute inset-0 w-full h-full object-contain pointer-events-none z-20 transition-opacity duration-300 ${isBubbleImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  onLoad={() => setIsBubbleImageLoaded(true)}
+                  onError={() => {
+                    console.error("Failed to load speech bubble:", speechBubbleSrc);
+                    setIsBubbleImageLoaded(true); // Force show (broken image icon) so it's not invisible
+                  }}
+                />
+              </>
+            ) : (
+              // Fallback content if only text is provided
+              <div className={`bg-white p-4 rounded shadow-lg transition-opacity duration-300 ${shouldShow ? 'opacity-100' : 'opacity-0'}`}>
+                {speechText}
+              </div>
+            )}
+          </div>
+        )
+      }
 
       {/* Page Audio */}
-      {audioSrc && (
-        <audio
-          ref={audioRef}
-          src={`${import.meta.env.BASE_URL}${audioSrc}`}
-          loop
-          muted={false} // Ensure it's not muted by default, though browser policies might affect autoplay. Since it's on hover (interaction), it should work.
-        />
-      )}
+      {
+        audioSrc && (
+          <audio
+            ref={audioRef}
+            src={`${import.meta.env.BASE_URL}${audioSrc}`}
+            loop
+            muted={false} // Ensure it's not muted by default, though browser policies might affect autoplay. Since it's on hover (interaction), it should work.
+          />
+        )
+      }
     </div >
   );
 };
