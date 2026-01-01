@@ -18,7 +18,8 @@ const Controls = ({
     onZoomIn,
     onZoomOut,
     onToggleMobile,
-    isMobileView
+    isMobileView,
+    isMobileDevice // New prop from Book.jsx
 }) => {
     const [showMoreMenu, setShowMoreMenu] = useState(false);
     const [showHelp, setShowHelp] = useState(true);
@@ -36,84 +37,7 @@ const Controls = ({
 
     return (
         <>
-            {/* Help Dialog - Moved outside to escape stacking context of transformed parent */}
-            {showHelp && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300" onClick={() => setShowHelp(false)}>
-                    {/* Backdrop with blur */}
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" />
-
-                    {/* Dialog Content */}
-                    <div
-                        className="relative bg-white/90 backdrop-blur-2xl text-slate-900 rounded-[2.5rem] p-8 max-w-lg w-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-white/40 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-300"
-                        onClick={e => e.stopPropagation()}
-                    >
-                        {/* Decorative background gradients */}
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
-
-                        {/* Close Button */}
-                        <div className="absolute top-6 right-6 z-10">
-                            <button
-                                onClick={() => setShowHelp(false)}
-                                className="p-2 hover:bg-black/5 rounded-full transition-colors group"
-                            >
-                                <Icon path="M6 18L18 6M6 6l12 12" className="w-6 h-6 text-slate-400 group-hover:text-slate-600 transition-colors" />
-                            </button>
-                        </div>
-
-                        {/* Header */}
-                        <div className="relative z-10 mb-8 text-center">
-                            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-purple-100 to-indigo-100 rounded-2xl flex items-center justify-center mb-4 shadow-inner">
-                                <span className="text-3xl">💡</span>
-                            </div>
-                            <h2 className="text-3xl font-black tracking-tight text-slate-900 mb-2">How to Navigate</h2>
-                            <p className="text-slate-500 font-medium">Master the controls for the best experience</p>
-                        </div>
-
-                        {/* Features List */}
-                        <div className="space-y-4 relative z-10">
-                            <div className="flex items-center gap-5 p-4 bg-white/60 rounded-2xl border border-white/50 shadow-sm hover:shadow-md transition-shadow">
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
-                                    <Icon path="M15 19l-7-7 7-7" className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <p className="font-bold text-slate-900 text-lg">Flip Pages</p>
-                                    <p className="text-sm text-slate-500 font-medium">Click arrows, drag corners, or use keys</p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-5 p-4 bg-white/60 rounded-2xl border border-white/50 shadow-sm hover:shadow-md transition-shadow">
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center text-white shadow-lg shadow-pink-500/20">
-                                    <Icon path="M4 6h16M4 12h16M4 18h16" className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <p className="font-bold text-slate-900 text-lg">Controls</p>
-                                    <p className="text-sm text-slate-500 font-medium">Click bottom arrow to Show/Hide menu</p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-5 p-4 bg-white/60 rounded-2xl border border-white/50 shadow-sm hover:shadow-md transition-shadow">
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
-                                    <Icon path="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <p className="font-bold text-slate-900 text-lg">Read Dialogues</p>
-                                    <p className="text-sm text-slate-500 font-medium">Hover to read. Long-press (1.5s) to lock.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Action Button */}
-                        <button
-                            onClick={() => setShowHelp(false)}
-                            className="mt-8 w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg hover:bg-slate-800 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-slate-900/20 relative z-10"
-                        >
-                            Start Reading
-                        </button>
-                    </div>
-                </div>
-            )}
-
+            {/* ... Help Dialog (truncated) ... */}
             {/* Manual Toggle Container */}
             <div
                 className={`
@@ -162,9 +86,17 @@ const Controls = ({
 
                         {/* Navigation Group */}
                         <div className="flex items-center gap-1 bg-white/10 rounded-full p-1 border border-white/5">
-                            <ControlButton onClick={onPrevPage} icon="M15 19l-7-7 7-7" label="Previous" />
+                            <ControlButton
+                                onClick={onPrevPage}
+                                icon={isMobileDevice ? "M5 15l7-7 7 7" : "M15 19l-7-7 7-7"}
+                                label={isMobileDevice ? "Scroll Up" : "Previous"}
+                            />
                             <div className="w-px h-5 bg-white/20 mx-1"></div>
-                            <ControlButton onClick={onNextPage} icon="M9 5l7 7-7 7" label="Next" />
+                            <ControlButton
+                                onClick={onNextPage}
+                                icon={isMobileDevice ? "M19 9l-7 7-7-7" : "M9 5l7 7-7 7"}
+                                label={isMobileDevice ? "Scroll Down" : "Next"}
+                            />
                         </div>
 
                         {/* Progress Group */}

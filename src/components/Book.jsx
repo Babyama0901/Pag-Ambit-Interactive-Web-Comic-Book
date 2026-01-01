@@ -512,12 +512,38 @@ function Book() {
 
 
 
+  const handleScrollNext = () => {
+    const nextIndex = currentPage + 1;
+    // Find the next element by data-index
+    // Note: data-index matches our Loop index.
+    const targetEl = document.querySelector(`.mobile-page[data-index="${nextIndex}"]`);
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleScrollPrev = () => {
+    const prevIndex = currentPage - 1;
+    const targetEl = document.querySelector(`.mobile-page[data-index="${prevIndex}"]`);
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const nextPage = () => {
-    bookRef.current?.pageFlip()?.flipNext();
+    if (isMobile) {
+      handleScrollNext();
+    } else {
+      bookRef.current?.pageFlip()?.flipNext();
+    }
   };
 
   const prevPage = () => {
-    bookRef.current?.pageFlip()?.flipPrev();
+    if (isMobile) {
+      handleScrollPrev();
+    } else {
+      bookRef.current?.pageFlip()?.flipPrev();
+    }
   };
 
   // Keyboard navigation for page flipping
@@ -740,6 +766,7 @@ function Book() {
           onJumpToCover={handleJumpToCover}
           onJumpToEnd={handleJumpToEnd}
           onJumpToPage={handleJumpToPage}
+          isMobileDevice={isMobile}
         />
 
         {/* Dialogs */}
