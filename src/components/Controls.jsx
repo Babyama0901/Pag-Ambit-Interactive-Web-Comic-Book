@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 const Controls = ({
     currentPage,
     totalPages,
-    isMuted,
+    volume,
     isFullscreen,
     onPrevPage,
     onNextPage,
-    onToggleMute,
+    onVolumeChange,
     onToggleFullscreen,
     onBookmark,
     onShare,
@@ -185,13 +185,27 @@ const Controls = ({
                         {/* Actions Group */}
                         <div className="flex items-center gap-2">
                             <div className="flex items-center gap-1 bg-white/10 rounded-full p-1 border border-white/5 hidden sm:flex">
-                                <ControlButton
-                                    onClick={onToggleMute}
-                                    icon={isMuted ? "M5.586 5.586a2 2 0 002.828 0L16 13.172V17l-4.586-4.586-2.828 2.828A2 2 0 015.586 12.414l2.828-2.828-2.828-2.828z M12 8.828L16 4.828V8.828z" : "M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"}
-                                    active={!isMuted}
-                                    className={!isMuted ? "bg-indigo-500/20 text-indigo-300 shadow-[0_0_10px_rgba(99,102,241,0.3)] hover:bg-indigo-500/30" : "text-white/40 hover:text-white"}
-                                    label={isMuted ? "Unmute" : "Mute"}
-                                />
+
+                                {/* Volume Slider */}
+                                <div className="flex items-center gap-2 px-2 group">
+                                    <button
+                                        onClick={() => onVolumeChange({ target: { value: volume === 0 ? 0.5 : 0 } })}
+                                        className="text-white/70 hover:text-white transition-colors"
+                                    >
+                                        <Icon path={volume === 0 ? "M5.586 5.586a2 2 0 002.828 0L16 13.172V17l-4.586-4.586-2.828 2.828A2 2 0 015.586 12.414l2.828-2.828-2.828-2.828z M12 8.828L16 4.828V8.828z" : "M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"} className="w-4 h-4" />
+                                    </button>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="1"
+                                        step="0.05"
+                                        value={volume}
+                                        onChange={onVolumeChange}
+                                        className="w-16 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-indigo-400 hover:accent-indigo-300 opacity-70 group-hover:opacity-100 transition-opacity"
+                                        title={`Volume: ${Math.round(volume * 100)}%`}
+                                    />
+                                </div>
+
                                 <ControlButton
                                     onClick={onToggleMobile}
                                     icon="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"

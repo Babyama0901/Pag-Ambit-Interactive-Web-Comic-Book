@@ -7,7 +7,7 @@ import { MessageCircle, ToggleLeft, ToggleRight, Loader2 } from 'lucide-react';
 
 
 // MediaPage Component (handles both Images and Videos)
-const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbleSrc, isSpeechBubbleVisible, isMobile, videoOverlay }) => {
+const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbleSrc, isSpeechBubbleVisible, isMobile, videoOverlay, audioSrc, isActive, volume }) => {
   const isVideo = src && src.toLowerCase().endsWith('.mp4');
   const [isHovered, setIsHovered] = useState(false);
   const [isBubbleImageLoaded, setIsBubbleImageLoaded] = useState(false);
@@ -38,9 +38,55 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
   const toPctX = (val) => `${(val / 595) * 100}%`;
   const toPctY = (val) => `${(val / 842) * 100}%`;
 
+  // Audio Logic
+  const audioRef = useRef(null);
+
+  // Apply volume when it changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
+
+  // Desktop Hover Handlers
+  const handleMouseEnter = () => {
+    if (!isMobile) {
+      setIsHovered(true);
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(e => console.error("Audio play failed:", e));
+      }
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isMobile) {
+      setIsHovered(false);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    }
+  };
+
+  // Mobile Active Page Handler
+  useEffect(() => {
+    if (isMobile && audioRef.current) {
+      if (isActive) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(e => console.error("Mobile Audio play failed:", e));
+      } else {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    }
+  }, [isMobile, isActive]);
+
   return (
     <div
       className="relative w-full h-full group overflow-hidden bg-white flex items-center justify-center p-0"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {isVideo ? (
         <video
@@ -109,13 +155,7 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
           {speechBubbleSrc ? (
             <>
               {/* Spinner while loading */}
-              {!isBubbleImageLoaded && shouldShow && (
-                <div className="absolute inset-0 flex items-center justify-center z-30">
-                  <div className="bg-white/80 p-3 rounded-full shadow-lg">
-                    <Loader2 className="animate-spin text-purple-600" size={32} />
-                  </div>
-                </div>
-              )}
+              {/* Spinner while loading - REMOVED */}
               <img
                 src={encodeURI(speechBubbleSrc)}
                 alt="Speech Bubble"
@@ -135,7 +175,17 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
           )}
         </div>
       )}
-    </div>
+
+      {/* Page Audio */}
+      {audioSrc && (
+        <audio
+          ref={audioRef}
+          src={`${import.meta.env.BASE_URL}${audioSrc}`}
+          loop
+          muted={false} // Ensure it's not muted by default, though browser policies might affect autoplay. Since it's on hover (interaction), it should work.
+        />
+      )}
+    </div >
   );
 };
 
@@ -145,7 +195,7 @@ function Book() {
   const [activeDialog, setActiveDialog] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(1.0); // 0.0 to 1.0
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isNightMode, setIsNightMode] = useState(false);
   const [isGlobalLoading, setIsGlobalLoading] = useState(true);
@@ -196,7 +246,8 @@ function Book() {
     },
     {
       src: 'Layout/SCENE 1 - PAGE 2.png', alt: 'Scene 1 Page 2',
-      videoOverlay: { src: 'Animated Clips/SCENE 1 - PAGE 2.mp4', x: -519, y: 140, width: 1035, height: 547 }
+      videoOverlay: { src: 'Animated Clips/SCENE 1 - PAGE 2.mp4', x: -519, y: 140, width: 1035, height: 547 },
+      audioSrc: 'Sound Effect Library/digital-alarm-clock-tone-362040.mp3'
     },
     { src: 'Layout/SCENE 1 - PAGE 3.png', alt: 'Scene 1 Page 3' },
     { src: 'Layout/SCENE 2 - PAGE 4.png', alt: 'Scene 2 Page 4', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 2 - PAGE 4 - DIALOGUE.png' },
@@ -213,7 +264,8 @@ function Book() {
     { src: 'Layout/SCENE 4 - PAGE 15.png', alt: 'Scene 4 Page 15' },
     {
       src: 'Layout/SCENE 4 - PAGE 16.png', alt: 'Scene 4 Page 16',
-      videoOverlay: { src: 'Animated Clips/SCENE 4 - PAGE 6.mp4', x: 105, y: 220, width: 385, height: 416 }
+      videoOverlay: { src: 'Animated Clips/SCENE 4 - PAGE 6.mp4', x: 105, y: 220, width: 385, height: 416 },
+      audioSrc: 'Sound Effect Library/night-ambience-17064.mp3'
     },
     { src: 'Layout/SCENE 5 - PAGE 17.png', alt: 'Scene 5 Page 17' },
     { src: 'Layout/SCENE 5 - PAGE 18.png', alt: 'Scene 5 Page 18' },
@@ -225,46 +277,58 @@ function Book() {
     { src: 'Layout/SCENE 6 - PAGE 24.png', alt: 'Scene 6 Page 24', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 6 - PAGE 24 - DIALOGUE.png' },
     {
       src: 'Layout/SCENE 7 - PAGE 25.png', alt: 'Scene 7 Page 25', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 7 - PAGE 25 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 7 - PAGE 25.mp4', x: 30, y: 64, width: 290, height: 338 }
+      videoOverlay: { src: 'Animated Clips/SCENE 7 - PAGE 25.mp4', x: 30, y: 64, width: 290, height: 338 },
+      audioSrc: 'Sound Effect Library/drawing-sound-405119.mp3'
     },
     {
       src: 'Layout/SCENE 7 - PAGE 26.png', alt: 'Scene 7 Page 26',
-      videoOverlay: { src: 'Animated Clips/SCENE 7 - PAGE 26.mp4', x: 8, y: 357, width: 580, height: 277 }
+      videoOverlay: { src: 'Animated Clips/SCENE 7 - PAGE 26.mp4', x: 8, y: 357, width: 580, height: 277 },
+      audioSrc: 'Sound Effect Library/woman-crying-softly-268484.mp3'
     },
     { src: 'Layout/SCENE 8 - PAGE 27.png', alt: 'Scene 8 Page 27', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 8 - PAGE 27 - DIALOGUE.png' },
     { src: 'Layout/SCENE 8 - PAGE 28.png', alt: 'Scene 8 Page 28', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 8 - PAGE 28 - DIALOGUE.png' },
     {
       src: 'Layout/SCENE 9 - PAGE 29.png', alt: 'Scene 9 Page 29', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 9 - PAGE 29 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 9 - PAGE 29.mp4', x: 33, y: 60, width: 525, height: 300 }
+      videoOverlay: { src: 'Animated Clips/SCENE 9 - PAGE 29.mp4', x: 33, y: 60, width: 525, height: 300 },
+      audioSrc: 'Sound Effect Library/footsteps-dance-studio-70985.mp3'
     },
     {
       src: 'Layout/SCENE 9 - PAGE 30.png', alt: 'Scene 9 Page 30',
-      videoOverlay: { src: 'Animated Clips/SCENE 9 - PAGE 30.mp4', x: 222, y: 336, width: 354, height: 170 }
+      videoOverlay: { src: 'Animated Clips/SCENE 9 - PAGE 30.mp4', x: 222, y: 336, width: 354, height: 170 },
+      audioSrc: 'Sound Effect Library/footsteps-running-on-the-floor-81283.mp3'
     },
     {
       src: 'Layout/SCENE 10 - PAGE 31.png', alt: 'Scene 10 Page 31',
-      videoOverlay: { src: 'Animated Clips/SCENE 10 - PAGE 31.mp4', x: 55, y: 489, width: 485, height: 223 }
+      videoOverlay: { src: 'Animated Clips/SCENE 10 - PAGE 31.mp4', x: 55, y: 489, width: 485, height: 223 },
+      audioSrc: 'Sound Effect Library/new-notification-09-352705.mp3'
     },
     { src: 'Layout/SCENE 11 - PAGE 32.png', alt: 'Scene 11 Page 32', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 11 - PAGE 32 - DIALOGUE.png' },
     { src: 'Layout/SCENE 11 - PAGE 33.png', alt: 'Scene 11 Page 33', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 11 - PAGE 33 - DIALOGUE.png' },
     {
       src: 'Layout/SCENE 11 - PAGE 34.png', alt: 'Scene 11 Page 34',
-      videoOverlay: { src: 'Animated Clips/SCENE 11 - PAGE 34.mp4', x: 22, y: 336, width: 278, height: 414 }
+      videoOverlay: { src: 'Animated Clips/SCENE 11 - PAGE 34.mp4', x: 22, y: 336, width: 278, height: 414 },
+      audioSrc: 'Sound Effect Library/footsteps-running-on-the-floor-81283.mp3'
     },
     {
       src: 'Layout/SCENE 12 - PAGE 35.png', alt: 'Scene 12 Page 35', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 12 - PAGE 35 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 12 - PAGE 35.mp4', x: 59, y: 219, width: 477, height: 333 }
+      videoOverlay: { src: 'Animated Clips/SCENE 12 - PAGE 35.mp4', x: 59, y: 219, width: 477, height: 333 },
+      audioSrc: 'Sound Effect Library/suburban-alley-traffic-ambience-359577.mp3'
     },
     { src: 'Layout/SCENE 12 - PAGE 36.png', alt: 'Scene 12 Page 36' },
     {
       src: 'Layout/SCENE 12 - PAGE 37.png', alt: 'Scene 12 Page 37', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 12 - PAGE 37 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 12 - PAGE 37.mp4', x: 33, y: 172, width: 514, height: 310 }
+      videoOverlay: { src: 'Animated Clips/SCENE 12 - PAGE 37.mp4', x: 33, y: 172, width: 514, height: 310 },
+      audioSrc: 'Sound Effect Library/suburban-alley-traffic-ambience-359577.mp3'
     },
     {
       src: 'Layout/SCENE 13 - PAGE 38.png', alt: 'Scene 13 Page 38',
-      videoOverlay: { src: 'Animated Clips/SCENE 13 - PAGE 38.mp4', x: 42, y: 204, width: 511, height: 332 } // TODO: Adjust coordinates based on reference
+      videoOverlay: { src: 'Animated Clips/SCENE 13 - PAGE 38.mp4', x: 42, y: 204, width: 511, height: 332 }, // TODO: Adjust coordinates based on reference
+      audioSrc: 'Sound Effect Library/traffic-commotion-with-siren-and-car-horns-urban-street-noise-457233.mp3'
     },
-    { src: 'Layout/SCENE 13 - PAGE 39.png', alt: 'Scene 13 Page 39' },
+    {
+      src: 'Layout/SCENE 13 - PAGE 39.png', alt: 'Scene 13 Page 39',
+      audioSrc: 'Sound Effect Library/traffic-commotion-with-siren-and-car-horns-urban-street-noise-457233.mp3'
+    },
     { src: 'Layout/SCENE 14 - PAGE 40.png', alt: 'Scene 14 Page 40', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 14 - PAGE 40 - DIALOGUE.png' },
     { src: 'Layout/SCENE 14 - PAGE 41.png', alt: 'Scene 14 Page 41', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 14 - PAGE 41 - DIALOGUE.png' },
     { src: 'Layout/SCENE 14 - PAGE 42.png', alt: 'Scene 14 Page 42', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 14 - PAGE 42 - DIALOGUE.png' },
@@ -273,7 +337,8 @@ function Book() {
     { src: 'Layout/SCENE 16 - PAGE 45.png', alt: 'Scene 16 Page 45' },
     {
       src: 'Layout/SCENE 16 - PAGE 46.png', alt: 'Scene 16 Page 46',
-      videoOverlay: { src: 'Animated Clips/SCENE 16 - PAGE 46.mp4', x: 35, y: 37, width: 273, height: 385 }
+      videoOverlay: { src: 'Animated Clips/SCENE 16 - PAGE 46.mp4', x: 35, y: 37, width: 273, height: 385 },
+      audioSrc: 'Sound Effect Library/panting-7108.mp3'
     },
     { src: 'Layout/SCENE 17 - PAGE 47.png', alt: 'Scene 17 Page 47', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 17 - PAGE 47 - DIALOGUE.png' },
     { src: 'Layout/SCENE 17 - PAGE 48.png', alt: 'Scene 17 Page 48', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 17 - PAGE 48 - DIAGLOGUE.png' },
@@ -303,7 +368,8 @@ function Book() {
     { src: 'Layout/SCENE 26 - PAGE 72.png', alt: 'Scene 26 Page 72', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 26 - PAGE 72 - DIALOGUE.png' },
     {
       src: 'Layout/SCENE 26 - PAGE 73.png', alt: 'Scene 26 Page 73',
-      videoOverlay: { src: 'Animated Clips/SCENE 26 - PAGE 73.mp4', x: 60, y: 291, width: 475, height: 260 }
+      videoOverlay: { src: 'Animated Clips/SCENE 26 - PAGE 73.mp4', x: 60, y: 291, width: 475, height: 260 },
+      audioSrc: 'Sound Effect Library/footsteps-running-on-the-floor-81283.mp3'
     },
     { src: 'Layout/SCENE 27 - PAGE 74.png', alt: 'Scene 27 Page 74', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 27 - PAGE 74 - DIALOGUE.png' },
     { src: 'Layout/SCENE 27 - PAGE 75.png', alt: 'Scene 27 Page 75' },
@@ -316,21 +382,25 @@ function Book() {
     { src: 'Layout/SCENE 29 - PAGE 82.png', alt: 'Scene 29 Page 82' },
     {
       src: 'Layout/SCENE 30 - PAGE 83.png', alt: 'Scene 30 Page 83', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 83 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 30 - PAGE 83.mp4', x: 44, y: 288, width: 507, height: 267 }
+      videoOverlay: { src: 'Animated Clips/SCENE 30 - PAGE 83.mp4', x: 44, y: 288, width: 507, height: 267 },
+      audioSrc: 'Sound Effect Library/cooking-sound-442650.mp3'
     },
     {
       src: 'Layout/SCENE 30 - PAGE 84.png', alt: 'Scene 30 Page 84', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 84 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 30 - PAGE 84.mp4', x: 45, y: 289, width: 505, height: 264 }
+      videoOverlay: { src: 'Animated Clips/SCENE 30 - PAGE 84.mp4', x: 45, y: 289, width: 505, height: 264 },
+      audioSrc: 'Sound Effect Library/dishes-clearing-73302.mp3'
     },
     { src: 'Layout/SCENE 30 - PAGE 85.png', alt: 'Scene 30 Page 85', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 85 - DIALOGUE.png' },
     { src: 'Layout/SCENE 30 - PAGE 86.png', alt: 'Scene 30 Page 86', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 86 - DIALOGUE.png' },
     {
       src: 'Layout/SCENE 31 - PAGE 87.png', alt: 'Scene 31 Page 87', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 87 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 87.mp4', x: 23, y: 274, width: 550, height: 294, scale: 1.1 }
+      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 87.mp4', x: 23, y: 274, width: 550, height: 294, scale: 1.1 },
+      audioSrc: 'Sound Effect Library/knocking-on-door-6022.mp3'
     },
     {
       src: 'Layout/SCENE 31 - PAGE 88.png', alt: 'Scene 31 Page 88', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 88 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 88.mp4', x: 150, y: 451, width: 410, height: 217, scale: 1.1 }
+      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 88.mp4', x: 150, y: 451, width: 410, height: 217, scale: 1.1 },
+      audioSrc: 'Sound Effect Library/woman-scream-sound-hd-379381.mp3'
     },
     {
       src: 'Layout/SCENE 31 - PAGE 89.png', alt: 'Scene 31 Page 89',
@@ -338,7 +408,8 @@ function Book() {
     },
     {
       src: 'Layout/SCENE 32 - PAGE 90.png', alt: 'Scene 32 Page 90', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 32 - PAGE 90 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 32 - PAGE 90.mp4', x: 300, y: 453, width: 296, height: 327, scale: 1.1 }
+      videoOverlay: { src: 'Animated Clips/SCENE 32 - PAGE 90.mp4', x: 300, y: 453, width: 296, height: 327, scale: 1.1 },
+      audioSrc: 'Sound Effect Library/woman-sobbing-372482.mp3'
     },
     { src: 'Layout/SCENE 33 - PAGE 91.png', alt: 'Scene 33 Page 91' },
     { src: 'Layout/SCENE 33 - PAGE 92.png', alt: 'Scene 33 Page 92', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 33 - PAGE 92 - DIALOGUE.png' },
@@ -387,8 +458,9 @@ function Book() {
   }, []);
 
   const handleFlip = (e) => {
-    if (audioRef.current && !isMuted) {
+    if (audioRef.current) {
       audioRef.current.currentTime = 0;
+      audioRef.current.volume = volume;
       audioRef.current.play().catch(() => { });
     }
     if (e && typeof e.data === 'number') {
@@ -396,10 +468,11 @@ function Book() {
     }
   };
 
-  const toggleMute = () => {
+  const handleVolumeChange = (e) => {
+    const newVol = parseFloat(e.target.value);
+    setVolume(newVol);
     if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
+      audioRef.current.volume = newVol;
     }
   };
 
@@ -541,6 +614,9 @@ function Book() {
                 isSpeechBubbleVisible={isSpeechBubbleVisible}
                 isMobile={isMobile}
                 videoOverlay={page.videoOverlay}
+                audioSrc={page.audioSrc}
+                isActive={currentPage === index + 1}
+                volume={volume}
               />
             </div>
           ))}
@@ -559,12 +635,12 @@ function Book() {
         <Controls
           currentPage={currentPage}
           totalPages={totalPages}
-          isMuted={isMuted}
+          volume={volume}
           isFullscreen={isFullscreen}
           isNightMode={isNightMode}
           onPrevPage={prevPage}
           onNextPage={nextPage}
-          onToggleMute={toggleMute}
+          onVolumeChange={handleVolumeChange}
           onToggleFullscreen={toggleFullScreen}
           onBookmark={() => setActiveDialog('bookmarks')}
           onDownload={() => setActiveDialog('save')}
