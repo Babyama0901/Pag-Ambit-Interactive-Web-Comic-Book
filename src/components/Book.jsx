@@ -300,7 +300,7 @@ function Book() {
     { src: 'Layout/SCENE 8 - PAGE 28.png', alt: 'Scene 8 Page 28', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 8 - PAGE 28 - DIALOGUE.png' },
     {
       src: 'Layout/SCENE 9 - PAGE 29.png', alt: 'Scene 9 Page 29', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 9 - PAGE 29 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 9 - PAGE 29.mp4', x: 35, y: 130, width: 525, height: 300 },
+      videoOverlay: { src: 'Animated Clips/SCENE 9 - PAGE 29.mp4', x: 35, y: 130, width: 525, height: 300, scale: 1.2 },
       audioSrc: 'Sound Effect Library/footsteps-dance-studio-70985.mp3'
     },
     {
