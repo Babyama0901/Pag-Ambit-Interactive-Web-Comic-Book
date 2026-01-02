@@ -140,8 +140,6 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
             onClick={(e) => e.stopPropagation()} // Prevent click from flipping page
           >
             <button
-              onMouseEnter={() => !isMobile && setIsHovered(true)}
-              onMouseLeave={() => !isMobile && setIsHovered(false)}
               onClick={handleMobileClick}
               className={`p-3 rounded-full shadow-lg transition-opacity duration-300 hover:opacity-0 ${shouldShow ? 'bg-purple-600 text-white' : 'bg-white/80 text-purple-600'}`}
             >
@@ -589,7 +587,7 @@ function Book() {
       <HTMLFlipBook
         width={450}
         height={636}
-        size="stretch"
+        size="fixed"
         minWidth={318}
         maxWidth={595}
         minHeight={450}
