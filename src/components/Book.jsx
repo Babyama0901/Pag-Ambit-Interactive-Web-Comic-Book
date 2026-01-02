@@ -257,7 +257,7 @@ function Book() {
     },
     {
       src: 'Layout/SCENE 1 - PAGE 2.png', alt: 'Scene 1 Page 2',
-      videoOverlay: { src: 'Animated Clips/SCENE 1 - PAGE 2.mp4', x: -519, y: 140, width: 1035, height: 547 },
+      videoOverlay: { src: 'Animated Clips/SCENE 1 - PAGE 2.mp4', x: -520, y: 140, width: 1035, height: 547 },
       audioSrc: 'Sound Effect Library/digital-alarm-clock-tone-362040.mp3'
     },
     { src: 'Layout/SCENE 1 - PAGE 3.png', alt: 'Scene 1 Page 3' },
