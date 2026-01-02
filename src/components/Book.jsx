@@ -84,7 +84,7 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
 
   return (
     <div
-      className="relative w-full h-full group overflow-hidden bg-white flex items-center justify-center p-0"
+      className="relative w-full h-full group bg-white flex items-center justify-center p-0"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={handleMobileClick}
@@ -257,7 +257,7 @@ function Book() {
     },
     {
       src: 'Layout/SCENE 1 - PAGE 2.png', alt: 'Scene 1 Page 2',
-      videoOverlay: { src: 'Animated Clips/SCENE 1 - PAGE 2.mp4', x: -520, y: 140, width: 1035, height: 547 },
+      videoOverlay: { src: 'Animated Clips/SCENE 1 - PAGE 2.mp4', x: -518, y: 140, width: 1035, height: 547 },
       audioSrc: 'Sound Effect Library/digital-alarm-clock-tone-362040.mp3'
     },
     { src: 'Layout/SCENE 1 - PAGE 3.png', alt: 'Scene 1 Page 3' },
@@ -300,7 +300,7 @@ function Book() {
     { src: 'Layout/SCENE 8 - PAGE 28.png', alt: 'Scene 8 Page 28', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 8 - PAGE 28 - DIALOGUE.png' },
     {
       src: 'Layout/SCENE 9 - PAGE 29.png', alt: 'Scene 9 Page 29', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 9 - PAGE 29 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 9 - PAGE 29.mp4', x: 33, y: 60, width: 525, height: 300 },
+      videoOverlay: { src: 'Animated Clips/SCENE 9 - PAGE 29.mp4', x: 130, y: 60, width: 525, height: 300 },
       audioSrc: 'Sound Effect Library/footsteps-dance-studio-70985.mp3'
     },
     {
