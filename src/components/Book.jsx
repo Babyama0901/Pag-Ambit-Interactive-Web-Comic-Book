@@ -199,70 +199,7 @@ const MediaPage = ({ src, alt, pageNum, hasSpeechBubble, speechText, speechBubbl
 
 
 
-// Mobile Scroll Component (Webtoon style)
-const MobileScrollMode = ({ pages, activePage, onPageChange, volume, isSpeechBubbleVisible }) => {
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = Number(entry.target.getAttribute('data-index'));
-            onPageChange(index);
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
 
-    const pageElements = document.querySelectorAll('.mobile-page');
-    pageElements.forEach((el) => observer.observe(el));
-
-    return () => pageElements.forEach((el) => observer.unobserve(el));
-  }, [pages]); // Re-run if pages change
-
-  const allContent = [
-    { src: 'Layout/FRONT BOOK COVER.png', alt: 'Front Cover', isCover: true, index: 0 },
-    ...pages.map((p, i) => ({ ...p, index: i + 1 })),
-    { src: 'Layout/BACK BOOK COVER.png', alt: 'Back Cover', isCover: true, index: pages.length + 1 }
-  ];
-
-  return (
-    <div className="flex flex-col w-full h-[100dvh] bg-slate-900 overflow-y-auto overscroll-y-contain"> {/* Fixed height for scroll */}
-      {allContent.map((item) => (
-        <div
-          key={item.index}
-          data-index={item.index}
-          className="mobile-page w-full relative mb-1 shadow-lg"
-        >
-          {item.isCover ? (
-            <img
-              src={`${import.meta.env.BASE_URL}${item.src}`}
-              alt={item.alt}
-              className="w-full h-auto object-cover block"
-            />
-          ) : (
-            <div className="w-full relative">
-              <MediaPage
-                src={`${import.meta.env.BASE_URL}${item.src || ''}`}
-                alt={item.alt}
-                pageNum={item.index}
-                hasSpeechBubble={item.hasSpeechBubble}
-                speechText={item.speechText}
-                speechBubbleSrc={item.speechBubbleSrc ? `${import.meta.env.BASE_URL}${item.speechBubbleSrc}` : null}
-                isSpeechBubbleVisible={isSpeechBubbleVisible}
-                isMobile={true}
-                videoOverlay={item.videoOverlay}
-                audioSrc={item.audioSrc}
-                isActive={activePage === item.index}
-                volume={volume}
-              />
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 
 function Book() {
@@ -512,38 +449,14 @@ function Book() {
 
 
 
-  const handleScrollNext = () => {
-    const nextIndex = currentPage + 1;
-    // Find the next element by data-index
-    // Note: data-index matches our Loop index.
-    const targetEl = document.querySelector(`.mobile-page[data-index="${nextIndex}"]`);
-    if (targetEl) {
-      targetEl.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
-  const handleScrollPrev = () => {
-    const prevIndex = currentPage - 1;
-    const targetEl = document.querySelector(`.mobile-page[data-index="${prevIndex}"]`);
-    if (targetEl) {
-      targetEl.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   const nextPage = () => {
-    if (isMobile) {
-      handleScrollNext();
-    } else {
-      bookRef.current?.pageFlip()?.flipNext();
-    }
+    bookRef.current?.pageFlip()?.flipNext();
   };
 
   const prevPage = () => {
-    if (isMobile) {
-      handleScrollPrev();
-    } else {
-      bookRef.current?.pageFlip()?.flipPrev();
-    }
+    bookRef.current?.pageFlip()?.flipPrev();
   };
 
   // Keyboard navigation for page flipping
@@ -673,239 +586,229 @@ function Book() {
       )}
 
       {/* Book Container - Configured for Mobile Scroll or Desktop Flip */}
-      <div className="relative z-10 flex items-center justify-center w-full">
-        {isMobile ? (
-          <MobileScrollMode
-            pages={pages}
-            activePage={currentPage}
-            onPageChange={setCurrentPage}
-            volume={volume}
-            isSpeechBubbleVisible={isSpeechBubbleVisible} // Though mobile toggles individually, passing this doesn't hurt
+      <HTMLFlipBook
+        width={450}
+        height={636}
+        size="stretch"
+        minWidth={318}
+        maxWidth={595}
+        minHeight={450}
+        maxHeight={842}
+        maxShadowOpacity={0.5}
+        showCover={true}
+        mobileScrollSupport={false}
+        usePortrait={false}
+        className="shadow-2xl"
+        ref={bookRef}
+        onFlip={handleFlip}
+        flippingTime={1000}
+        autoSize={true}
+        drawShadow={true}
+        useMouseEvents={true}
+        startPage={0}
+      >
+        {/* Front Cover */}
+        <div className="page cover bg-gradient-to-br from-purple-900 via-violet-800 to-indigo-900 text-white flex flex-col items-center justify-center p-0 border-r-4 border-purple-950 relative overflow-hidden">
+          <img
+            src={`${import.meta.env.BASE_URL}Layout/FRONT BOOK COVER.png`}
+            alt="Front Cover"
+            className="w-full h-full object-cover"
           />
-        ) : (
-          <HTMLFlipBook
-            width={450}
-            height={636}
-            size="fixed"
-            minWidth={318}
-            maxWidth={595}
-            minHeight={450}
-            maxHeight={842}
-            maxShadowOpacity={0.5}
-            showCover={true}
-            mobileScrollSupport={true}
-            usePortrait={true}
-            className="shadow-2xl"
-            ref={bookRef}
-            onFlip={handleFlip}
-            flippingTime={1000}
-            autoSize={false}
-            drawShadow={true}
-            useMouseEvents={true}
-          >
-            {/* Front Cover */}
-            <div className="page cover bg-gradient-to-br from-purple-900 via-violet-800 to-indigo-900 text-white flex flex-col items-center justify-center p-0 border-r-4 border-purple-950 relative overflow-hidden">
-              <img
-                src={`${import.meta.env.BASE_URL}Layout/FRONT BOOK COVER.png`}
-                alt="Front Cover"
-                className="w-full h-full object-cover"
-              />
-            </div>
+        </div>
 
-            {/* Pages */}
-            {pages.map((page, index) => (
-              <div key={index} className="page bg-white">
-                <MediaPage
-                  src={`${import.meta.env.BASE_URL}${page.src || ''}`}
-                  alt={`Page ${index + 1}`}
-                  pageNum={index + 1}
-                  hasSpeechBubble={page.hasSpeechBubble}
-                  speechText={page.speechText}
-                  speechBubbleSrc={page.speechBubbleSrc ? `${import.meta.env.BASE_URL}${page.speechBubbleSrc}` : null}
-                  isSpeechBubbleVisible={isSpeechBubbleVisible}
-                  isMobile={isMobile}
-                  videoOverlay={page.videoOverlay}
-                  audioSrc={page.audioSrc}
-                  isActive={currentPage === index + 1}
-                  volume={volume}
-                />
-              </div>
-            ))}
-
-            {/* Back Cover */}
-            <div className="page cover bg-gradient-to-br from-indigo-900 via-purple-800 to-violet-900 text-white flex flex-col items-center justify-center p-0 border-l-4 border-purple-950 relative overflow-hidden">
-              <img
-                src={`${import.meta.env.BASE_URL}Layout/BACK BOOK COVER.png`}
-                alt="Back Cover"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </HTMLFlipBook>
-        )}
-
-        {/* Controls */}
-        <Controls
-          currentPage={currentPage}
-          totalPages={totalPages}
-          volume={volume}
-          isFullscreen={isFullscreen}
-          isNightMode={isNightMode}
-          onPrevPage={prevPage}
-          onNextPage={nextPage}
-          onVolumeChange={handleVolumeChange}
-          onToggleFullscreen={toggleFullScreen}
-          onBookmark={() => setActiveDialog('bookmarks')}
-          onDownload={() => setActiveDialog('save')}
-          onShare={() => setActiveDialog('share')}
-          onHighlight={handleHighlight}
-          onNotes={handleNotes}
-          onSearch={handleSearch}
-          onTableOfContents={() => alert('Table of Contents has been removed.')}
-          onToggleNightMode={toggleNightMode}
-          onPrint={() => setActiveDialog('print')}
-          onJumpToCover={handleJumpToCover}
-          onJumpToEnd={handleJumpToEnd}
-          onJumpToPage={handleJumpToPage}
-          isMobileDevice={isMobile}
-        />
-
-        {/* Dialogs */}
-        <Modal
-          isOpen={activeDialog === 'bookmarks'}
-          onClose={() => setActiveDialog(null)}
-          title="Bookmarks"
-        >
-          <div className="space-y-4">
-            <button
-              onClick={() => {
-                localStorage.setItem('bookmarkedPage', currentPage);
-                alert('Page saved!');
-                setActiveDialog(null);
-              }}
-              className="w-full p-4 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-indigo-300 flex items-center justify-center gap-2 font-medium transition-all"
-            >
-              <span>+ Add Current Page ({currentPage + 1})</span>
-            </button>
-
-            <div className="space-y-2">
-              <h3 className="text-white/60 text-sm font-medium uppercase tracking-wider ml-1">Saved Bookmarks</h3>
-              {localStorage.getItem('bookmarkedPage') ? (
-                <button
-                  onClick={() => {
-                    const page = parseInt(localStorage.getItem('bookmarkedPage'));
-                    bookRef.current?.pageFlip()?.flip(page);
-                    setCurrentPage(page);
-                    setActiveDialog(null);
-                  }}
-                  className="w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-between group transition-all"
-                >
-                  <span className="text-white font-medium">Bookmark 1</span>
-                  <span className="text-white/40 text-sm">Page {parseInt(localStorage.getItem('bookmarkedPage')) + 1}</span>
-                </button>
-              ) : (
-                <div className="text-center py-8 text-white/30 italic">No bookmarks yet</div>
-              )}
-            </div>
+        {/* Pages */}
+        {pages.map((page, index) => (
+          <div key={index} className="page bg-white">
+            <MediaPage
+              src={`${import.meta.env.BASE_URL}${page.src || ''}`}
+              alt={`Page ${index + 1}`}
+              pageNum={index + 1}
+              hasSpeechBubble={page.hasSpeechBubble}
+              speechText={page.speechText}
+              speechBubbleSrc={page.speechBubbleSrc ? `${import.meta.env.BASE_URL}${page.speechBubbleSrc}` : null}
+              isSpeechBubbleVisible={isSpeechBubbleVisible}
+              isMobile={isMobile}
+              videoOverlay={page.videoOverlay}
+              audioSrc={page.audioSrc}
+              isActive={currentPage === index + 1}
+              volume={volume}
+            />
           </div>
-        </Modal>
+        ))}
 
-        <Modal
-          isOpen={activeDialog === 'print'}
-          onClose={() => setActiveDialog(null)}
-          title="Print"
-        >
-          <div className="text-center space-y-6">
-            <div className="w-24 h-32 mx-auto bg-white rounded shadow-lg flex items-center justify-center text-black/20 font-bold text-4xl">
-              {currentPage + 1}
-            </div>
-            <p className="text-white/70">Ready to print page {currentPage + 1}?</p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setActiveDialog(null)}
-                className="flex-1 p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium transition-all"
-              >
-                Cancel
-              </button>
+        {/* Back Cover */}
+        <div className="page cover bg-gradient-to-br from-indigo-900 via-purple-800 to-violet-900 text-white flex flex-col items-center justify-center p-0 border-l-4 border-purple-950 relative overflow-hidden">
+          <img
+            src={`${import.meta.env.BASE_URL}Layout/BACK BOOK COVER.png`}
+            alt="Back Cover"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </HTMLFlipBook>
+
+      {/* Controls */}
+      <Controls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        volume={volume}
+        isFullscreen={isFullscreen}
+        isNightMode={isNightMode}
+        onPrevPage={prevPage}
+        onNextPage={nextPage}
+        onVolumeChange={handleVolumeChange}
+        onToggleFullscreen={toggleFullScreen}
+        onBookmark={() => setActiveDialog('bookmarks')}
+        onDownload={() => setActiveDialog('save')}
+        onShare={() => setActiveDialog('share')}
+        onHighlight={handleHighlight}
+        onNotes={handleNotes}
+        onSearch={handleSearch}
+        onTableOfContents={() => alert('Table of Contents has been removed.')}
+        onToggleNightMode={toggleNightMode}
+        onPrint={() => setActiveDialog('print')}
+        onJumpToCover={handleJumpToCover}
+        onJumpToEnd={handleJumpToEnd}
+        onJumpToPage={handleJumpToPage}
+        isMobileDevice={isMobile}
+      />
+
+      {/* Dialogs */}
+      <Modal
+        isOpen={activeDialog === 'bookmarks'}
+        onClose={() => setActiveDialog(null)}
+        title="Bookmarks"
+      >
+        <div className="space-y-4">
+          <button
+            onClick={() => {
+              localStorage.setItem('bookmarkedPage', currentPage);
+              alert('Page saved!');
+              setActiveDialog(null);
+            }}
+            className="w-full p-4 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-indigo-300 flex items-center justify-center gap-2 font-medium transition-all"
+          >
+            <span>+ Add Current Page ({currentPage + 1})</span>
+          </button>
+
+          <div className="space-y-2">
+            <h3 className="text-white/60 text-sm font-medium uppercase tracking-wider ml-1">Saved Bookmarks</h3>
+            {localStorage.getItem('bookmarkedPage') ? (
               <button
                 onClick={() => {
-                  window.print();
+                  const page = parseInt(localStorage.getItem('bookmarkedPage'));
+                  bookRef.current?.pageFlip()?.flip(page);
+                  setCurrentPage(page);
                   setActiveDialog(null);
                 }}
-                className="flex-1 p-3 rounded-xl bg-white text-black font-bold hover:bg-white/90 transition-all"
+                className="w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-between group transition-all"
               >
-                Print Now
+                <span className="text-white font-medium">Bookmark 1</span>
+                <span className="text-white/40 text-sm">Page {parseInt(localStorage.getItem('bookmarkedPage')) + 1}</span>
               </button>
-            </div>
+            ) : (
+              <div className="text-center py-8 text-white/30 italic">No bookmarks yet</div>
+            )}
           </div>
-        </Modal>
+        </div>
+      </Modal>
 
-        <Modal
-          isOpen={activeDialog === 'share'}
-          onClose={() => setActiveDialog(null)}
-          title="Share Book"
-        >
-          <div className="space-y-4">
-            <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-              <p className="text-white/60 text-xs mb-2 uppercase tracking-wider">Book Link</p>
-              <div className="flex items-center gap-2">
-                <code className="flex-1 bg-black/30 p-2 rounded text-indigo-300 text-sm overflow-hidden text-ellipsis whitespace-nowrap">
-                  {window.location.href}
-                </code>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
-                    alert('Copied!');
-                  }}
-                  className="p-2 bg-white/10 hover:bg-white/20 rounded text-white transition-all"
-                >
-                  Copy
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <button className="p-3 rounded-xl bg-[#1DA1F2]/20 hover:bg-[#1DA1F2]/30 text-[#1DA1F2] font-medium transition-all">
-                Twitter
-              </button>
-              <button className="p-3 rounded-xl bg-[#4267B2]/20 hover:bg-[#4267B2]/30 text-[#4267B2] font-medium transition-all">
-                Facebook
-              </button>
-            </div>
+      <Modal
+        isOpen={activeDialog === 'print'}
+        onClose={() => setActiveDialog(null)}
+        title="Print"
+      >
+        <div className="text-center space-y-6">
+          <div className="w-24 h-32 mx-auto bg-white rounded shadow-lg flex items-center justify-center text-black/20 font-bold text-4xl">
+            {currentPage + 1}
           </div>
-        </Modal>
-
-        <Modal
-          isOpen={activeDialog === 'save'}
-          onClose={() => setActiveDialog(null)}
-          title="Save / Download"
-        >
-          <div className="space-y-3">
-            <button className="w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center gap-4 group transition-all">
-              <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-400">
-                PDF
-              </div>
-              <div className="text-left">
-                <div className="text-white font-medium">Download as PDF</div>
-                <div className="text-white/40 text-xs">High quality format</div>
-              </div>
+          <p className="text-white/70">Ready to print page {currentPage + 1}?</p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setActiveDialog(null)}
+              className="flex-1 p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium transition-all"
+            >
+              Cancel
             </button>
-
-            <button className="w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center gap-4 group transition-all">
-              <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
-                IMG
-              </div>
-              <div className="text-left">
-                <div className="text-white font-medium">Save Current Page</div>
-                <div className="text-white/40 text-xs">PNG Image</div>
-              </div>
+            <button
+              onClick={() => {
+                window.print();
+                setActiveDialog(null);
+              }}
+              className="flex-1 p-3 rounded-xl bg-white text-black font-bold hover:bg-white/90 transition-all"
+            >
+              Print Now
             </button>
           </div>
-        </Modal>
+        </div>
+      </Modal>
 
-        {/* Hidden Audio Element */}
-        <audio ref={audioRef} src={`${import.meta.env.BASE_URL}Page Turn Sound Effect.mp3`} preload="auto" />
-      </div >
+      <Modal
+        isOpen={activeDialog === 'share'}
+        onClose={() => setActiveDialog(null)}
+        title="Share Book"
+      >
+        <div className="space-y-4">
+          <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+            <p className="text-white/60 text-xs mb-2 uppercase tracking-wider">Book Link</p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 bg-black/30 p-2 rounded text-indigo-300 text-sm overflow-hidden text-ellipsis whitespace-nowrap">
+                {window.location.href}
+              </code>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  alert('Copied!');
+                }}
+                className="p-2 bg-white/10 hover:bg-white/20 rounded text-white transition-all"
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button className="p-3 rounded-xl bg-[#1DA1F2]/20 hover:bg-[#1DA1F2]/30 text-[#1DA1F2] font-medium transition-all">
+              Twitter
+            </button>
+            <button className="p-3 rounded-xl bg-[#4267B2]/20 hover:bg-[#4267B2]/30 text-[#4267B2] font-medium transition-all">
+              Facebook
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={activeDialog === 'save'}
+        onClose={() => setActiveDialog(null)}
+        title="Save / Download"
+      >
+        <div className="space-y-3">
+          <button className="w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center gap-4 group transition-all">
+            <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-400">
+              PDF
+            </div>
+            <div className="text-left">
+              <div className="text-white font-medium">Download as PDF</div>
+              <div className="text-white/40 text-xs">High quality format</div>
+            </div>
+          </button>
+
+          <button className="w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center gap-4 group transition-all">
+            <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
+              IMG
+            </div>
+            <div className="text-left">
+              <div className="text-white font-medium">Save Current Page</div>
+              <div className="text-white/40 text-xs">PNG Image</div>
+            </div>
+          </button>
+        </div>
+      </Modal>
+
+      {/* Hidden Audio Element */}
+      <audio ref={audioRef} src={`${import.meta.env.BASE_URL}Page Turn Sound Effect.mp3`} preload="auto" />
     </div >
+
   );
 }
 
