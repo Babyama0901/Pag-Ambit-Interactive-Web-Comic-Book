@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Modal from './Modal';
 
 const Controls = ({
     currentPage,
@@ -36,7 +37,49 @@ const Controls = ({
 
     return (
         <>
-            {/* ... Help Dialog (truncated) ... */}
+            {/* Help Dialog */}
+            <Modal
+                isOpen={showHelp}
+                onClose={() => setShowHelp(false)}
+                title="How to Use"
+            >
+                <div className="space-y-6 text-white/80">
+                    <div className="space-y-2">
+                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <span className="p-1 rounded bg-indigo-500/20 text-indigo-300">
+                                <Icon path="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" className="w-5 h-5" />
+                            </span>
+                            Navigation
+                        </h3>
+                        <ul className="list-disc list-inside space-y-1 ml-2 text-sm">
+                            <li><strong>Flip Pages:</strong>Click or drag the page corners.</li>
+                            <li><strong>Keyboard:</strong> Use <kbd className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-xs">←</kbd> <kbd className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-xs">→</kbd> arrow keys.</li>
+                            <li><strong>Mobile:</strong> Tap sides or swipe to turn.</li>
+                        </ul>
+                    </div>
+
+                    <div className="space-y-2">
+                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <span className="p-1 rounded bg-purple-500/20 text-purple-300">
+                                <Icon path="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" className="w-5 h-5" />
+                            </span>
+                            Features
+                        </h3>
+                        <ul className="list-disc list-inside space-y-1 ml-2 text-sm">
+                            <li><strong>Controls:</strong> Automatic zoom, full-screen mode, and mobile view optimizer.</li>
+                            <li><strong>Share:</strong> Quickly copy the book link to share with friends.</li>
+                            <li><strong>Security:</strong> Screenshot and download protection is active.</li>
+                        </ul>
+                    </div>
+
+                    <button
+                        onClick={() => setShowHelp(false)}
+                        className="w-full py-3 mt-4 bg-white text-black font-bold rounded-xl hover:bg-white/90 transition-colors"
+                    >
+                        Start Reading
+                    </button>
+                </div>
+            </Modal>
             {/* Manual Toggle Container */}
             <div
                 className={`
