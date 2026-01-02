@@ -398,28 +398,28 @@ function Book() {
     },
     {
       src: 'Layout/SCENE 30 - PAGE 84.png', alt: 'Scene 30 Page 84', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 84 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 30 - PAGE 84.mp4', x: 45, y: 289, width: 505, height: 264 },
+      videoOverlay: { src: 'Animated Clips/SCENE 30 - PAGE 84.mp4', x: 45, y: 289, width: 505, height: 264, scale: 1.2 },
       audioSrc: 'Sound Effect Library/dishes-clearing-73302.mp3'
     },
     { src: 'Layout/SCENE 30 - PAGE 85.png', alt: 'Scene 30 Page 85', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 85 - DIALOGUE.png' },
     { src: 'Layout/SCENE 30 - PAGE 86.png', alt: 'Scene 30 Page 86', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 30 - PAGE 86 - DIALOGUE.png' },
     {
       src: 'Layout/SCENE 31 - PAGE 87.png', alt: 'Scene 31 Page 87', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 87 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 87.mp4', x: 23, y: 274, width: 550, height: 294, scale: 1.1 },
+      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 87.mp4', x: 23, y: 274, width: 550, height: 294, scale: 1.3 },
       audioSrc: 'Sound Effect Library/knocking-on-door-6022.mp3'
     },
     {
       src: 'Layout/SCENE 31 - PAGE 88.png', alt: 'Scene 31 Page 88', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 31 - PAGE 88 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 88.mp4', x: 150, y: 451, width: 410, height: 217, scale: 1.1 },
+      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 88.mp4', x: 150, y: 451, width: 410, height: 217, scale: 1.3 },
       audioSrc: 'Sound Effect Library/woman-scream-sound-hd-379381.mp3'
     },
     {
       src: 'Layout/SCENE 31 - PAGE 89.png', alt: 'Scene 31 Page 89',
-      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 89.mp4', x: 48, y: 287, width: 500, height: 268, scale: 1.1 }
+      videoOverlay: { src: 'Animated Clips/SCENE 31 - PAGE 89.mp4', x: 48, y: 287, width: 500, height: 268, scale: 1.3 }
     },
     {
       src: 'Layout/SCENE 32 - PAGE 90.png', alt: 'Scene 32 Page 90', speechBubbleSrc: 'Speech Bubbles Dialogues/SCENE 32 - PAGE 90 - DIALOGUE.png',
-      videoOverlay: { src: 'Animated Clips/SCENE 32 - PAGE 90.mp4', x: 300, y: 453, width: 296, height: 327, scale: 1.1 },
+      videoOverlay: { src: 'Animated Clips/SCENE 32 - PAGE 90.mp4', x: 300, y: 453, width: 296, height: 327, scale: 1.3 },
       audioSrc: 'Sound Effect Library/woman-sobbing-372482.mp3'
     },
     { src: 'Layout/SCENE 33 - PAGE 91.png', alt: 'Scene 33 Page 91' },
