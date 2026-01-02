@@ -21,7 +21,6 @@ const Controls = ({
     isMobileView,
     isMobileDevice // New prop from Book.jsx
 }) => {
-    const [showMoreMenu, setShowMoreMenu] = useState(false);
     const [showHelp, setShowHelp] = useState(true);
     const [isVisible, setIsVisible] = useState(false);
 
@@ -43,7 +42,7 @@ const Controls = ({
                 className={`
                     fixed bottom-0 left-0 right-0 z-50 flex flex-col items-center justify-end
                     transition-transform duration-500 ease-in-out
-                    ${(isVisible || showMoreMenu) ? 'translate-y-0' : 'translate-y-[calc(100%-3rem)]'}
+                    ${(isVisible) ? 'translate-y-0' : 'translate-y-[calc(100%-3rem)]'}
                     pointer-events-none md:pointer-events-none
                 `}
             >
@@ -68,18 +67,7 @@ const Controls = ({
                 {/* Control Bar Container */}
                 <div className="w-auto max-w-5xl pb-6 px-4 pointer-events-auto relative z-20">
                     {/* More Menu Popup */}
-                    {showMoreMenu && (
-                        <div className="absolute bottom-full left-0 right-0 mb-4 mx-4 p-6 bg-black/80 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-bottom-4 duration-300 origin-bottom">
-                            <div className="grid grid-cols-4 gap-4 sm:gap-6">
-                                <MenuButton icon="M4 6h16M4 12h16M4 18h16" label="Contents" onClick={onTableOfContents} />
-                                <MenuButton icon="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" label="Bookmark" onClick={onBookmark} />
 
-                                <MenuButton icon="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" label="Share" onClick={onShare} />
-
-                                <MenuButton icon="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" label="Notes" onClick={onNotes} />
-                            </div>
-                        </div>
-                    )}
 
                     {/* Main Control Bar - Compact */}
                     <div className="bg-black/80 backdrop-blur-xl rounded-full border border-white/20 shadow-2xl px-5 py-2.5 flex items-center justify-evenly gap-6 sm:gap-8 transition-all duration-300 hover:bg-black/90 hover:scale-[1.01]">
@@ -195,11 +183,11 @@ const Controls = ({
                             </div>
 
                             <button
-                                onClick={() => setShowMoreMenu(!showMoreMenu)}
-                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${showMoreMenu ? 'bg-white text-black rotate-90' : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'}`}
-                                title="More Options"
+                                onClick={onShare}
+                                className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg bg-white/10 text-white hover:bg-white/20 border border-white/10"
+                                title="Share"
                             >
-                                <Icon path="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                                <Icon path="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                             </button>
                         </div>
 
