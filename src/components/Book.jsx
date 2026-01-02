@@ -597,7 +597,7 @@ function Book() {
         maxShadowOpacity={0.5}
         showCover={true}
         mobileScrollSupport={false}
-        usePortrait={false}
+        usePortrait={isMobile}
         className="shadow-2xl"
         ref={bookRef}
         onFlip={handleFlip}
