@@ -1,53 +1,58 @@
-import React, { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
-
 const Modal = ({ isOpen, onClose, title, children }) => {
     const [isVisible, setIsVisible] = useState(false);
-    const [isAnimating, setIsAnimating] = useState(false);
+    const [shouldRender, setShouldRender] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
-            setIsVisible(true);
-            // Small delay to allow render before animating in
-            requestAnimationFrame(() => setIsAnimating(true));
+            setShouldRender(true);
+            requestAnimationFrame(() => setIsVisible(true));
         } else {
-            setIsAnimating(false);
-            const timer = setTimeout(() => setIsVisible(false), 300); // Match transition duration
+            setIsVisible(false);
+            const timer = setTimeout(() => setShouldRender(false), 400);
             return () => clearTimeout(timer);
         }
     }, [isOpen]);
 
-    if (!isVisible) return null;
+    if (!shouldRender) return null;
 
     return (
-        <div className={`fixed inset-0 z-[100] flex items-center justify-center p-4 transition-all duration-300 ${isAnimating ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`fixed inset-0 z-[100] flex items-center justify-center p-4 transition-all duration-400 ease-out ${isVisible ? 'backdrop-blur-sm' : 'backdrop-blur-none delay-100'}`}>
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-md transition-opacity duration-300"
+                className={`absolute inset-0 bg-black/60 transition-opacity duration-400 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
                 onClick={onClose}
             />
 
             {/* Modal Content */}
             <div
                 className={`
-          relative w-full max-w-md bg-black/60 backdrop-blur-2xl border border-white/10 
-          rounded-[2rem] shadow-2xl overflow-hidden transform transition-all duration-300
-          ${isAnimating ? 'scale-100 translate-y-0' : 'scale-95 translate-y-8'}
-        `}
+                    relative w-full max-w-lg overflow-hidden
+                    glass-panel rounded-3xl
+                    transform transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)
+                    ${isVisible ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-8'}
+                `}
             >
+                {/* Decorative Elements */}
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50" />
+                <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+
                 {/* Header */}
-                <div className="flex items-center justify-between p-5 border-b border-white/10">
-                    <h2 className="text-xl font-semibold text-white tracking-tight">{title}</h2>
+                <div className="relative flex items-center justify-between p-6 border-b border-white/5">
+                    <h2 className="text-2xl font-bold text-white tracking-tight drop-shadow-sm flex items-center gap-2">
+                        {title}
+                    </h2>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                        className="p-2 -mr-2 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors duration-200"
+                        aria-label="Close modal"
                     >
-                        <X size={20} />
+                        <X size={24} />
                     </button>
                 </div>
 
                 {/* Body */}
-                <div className="p-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <div className="relative p-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
                     {children}
                 </div>
             </div>
