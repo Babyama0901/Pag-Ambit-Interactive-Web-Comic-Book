@@ -1,3 +1,6 @@
+import React, { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
+
 const Modal = ({ isOpen, onClose, title, children }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [shouldRender, setShouldRender] = useState(false);
