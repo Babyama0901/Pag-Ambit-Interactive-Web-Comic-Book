@@ -1,13 +1,9 @@
-# Pag-Ambit: Interactive Web Comic Book
-
+ Pag-Ambit: Interactive Web Comic Book
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=Vite&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-
 An immersive digital comic book experience built with modern web technologies. This project features a realistic page-flip effect, interactive controls, and multimedia support to bring stories to life on the web.
-
 ## 📖 Features
-
 *   **Realistic Page Flip**: Utilizes `react-pageflip` to simulate the tactile feel of reading a physical book.
 *   **Interactive Controls**:
     *   **Navigation**: Next/Prev buttons, Jump to Cover/End, Table of Contents, keyboard arrow keys.
@@ -16,54 +12,44 @@ An immersive digital comic book experience built with modern web technologies. T
 *   **Multimedia Support**: Seamlessly handles both high-quality images and video content within the book pages, with interactive speech bubble overlays on hover.
 *   **Responsive Design**: Automatically adjusts layout and dimensions for mobile devices and desktop screens.
 *   **Audio Experience**: Integrated page-turn sound effects with mute control.
-
 ## 🛠️ Tech Stack
-
 *   **Frontend Framework**: [React](https://react.dev/)
 *   **Build Tool**: [Vite](https://vitejs.dev/)
 *   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 *   **Core Library**: [react-pageflip](https://github.com/Nodlik/react-pageflip)
-
 ## 🚀 Getting Started
-
 Follow these steps to set up the project locally.
-
 ### Prerequisites
-
 *   Node.js (v16 or higher)
 *   npm or yarn
-
 ### Installation
-
 1.  **Clone the repository**
     ```bash
     git clone https://github.com/Babyama0901/Pag-Ambit-Interactive-Web-Comic-Book.git
     cd Pag-Ambit-Interactive-Web-Comic-Book
     ```
-
 2.  **Install dependencies**
     ```bash
     npm install
     ```
-
 ### Running Locally
-
 Start the development server:
 ```bash
 npm run dev
 ```
 The application will be available at `http://localhost:5173` (or the port shown in your terminal).
-
 ### Building for Production
-
 Create an optimized build for deployment:
 ```bash
 npm run build
 ```
 The output will be in the `dist` directory.
-
+## 📚 Documentation
+For detailed information about the system and how to use or maintain it, please refer to the following guides:
+*   **[User Manual](USER_MANUAL.md)**: General user guide for readers interacting with the comic book.
+*   **[Technical Manual](TECHNICAL_MANUAL.md)**: Detailed technical specifications, architecture, and maintenance guide.
+*   **[Thesis User Guide](THESIS_USER_GUIDE.md)**: Comprehensive guide for system deployment, usage, and troubleshooting.
 ## 📂 Project Structure
-
 ```
 src/
 ├── components/
@@ -77,7 +63,5 @@ public/
 ├── sounds/            # Audio assets
 └── ...
 ```
-
 ## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
+This project is available under the [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License](LICENSE).
