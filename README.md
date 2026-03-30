@@ -62,6 +62,14 @@ npm run build
 ```
 The output will be in the `dist` directory.
 
+## 📚 Documentation
+
+For detailed information about the system and how to use or maintain it, please refer to the following guides:
+
+*   **[User Manual](USER_MANUAL.md)**: General user guide for readers interacting with the comic book.
+*   **[Technical Manual](TECHNICAL_MANUAL.md)**: Detailed technical specifications, architecture, and maintenance guide.
+*   **[Thesis User Guide](THESIS_USER_GUIDE.md)**: Comprehensive guide for system deployment, usage, and troubleshooting.
+
 ## 📂 Project Structure
 
 ```
